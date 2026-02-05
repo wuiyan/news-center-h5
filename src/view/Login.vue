@@ -2,7 +2,9 @@
 import request from "../api/request.js";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+
 const router = useRouter()
+
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -17,14 +19,20 @@ function login() {
       password: password.value,
     })
     .then((response) => {
-      console.log("登录成功:", response.data);
-      alert("登录成功!");
-      // 登录成功后可以跳转到主页或其他页面
-      router.push("/index");
+      if (response.code == 200) {
+          // 登录成功，保存用户信息到 localStorage
+          localStorage.setItem("user", JSON.stringify(response.data));
+          alert("登录成功!");
+          // 登录成功后可以跳转到主页或其他页面
+          router.push("/index");
+      }else{
+          alert(response.msg || "登录失败，请检查用户名和密码。");
+          return;
+      } 
     })
     .catch((error) => {
       console.error("登录失败:", error);
-      alert("登录失败，请检查用户名和密码。");
+      alert("登录失败，请稍后再试。");
     });
 }
 </script>
