@@ -16,7 +16,7 @@
 
         <div class="form-section">
           <div class="avatar-upload">
-            <div class="avatar-preview" :style="{ background: form.avatar || 'linear-gradient(135deg, #667eea, #764ba2)' }">
+            <div class="avatar-preview" :style="form.avatar ? { backgroundImage: `url(${form.avatar})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }">
               {{ form.name?.charAt(0) || '👤' }}
             </div>
             <div class="upload-btn-wrapper">
@@ -60,21 +60,6 @@
             <span v-if="errors.email" class="error-msg">{{ errors.email }}</span>
           </div>
 
-          <div class="input-wrapper">
-            <label class="input-label">
-              <span class="label-icon">📝</span>
-              个人简介
-            </label>
-            <textarea
-              v-model="form.bio"
-              class="custom-textarea"
-              placeholder="介绍一下你自己..."
-              rows="4"
-              maxlength="200"
-            ></textarea>
-            <div class="char-count">{{ form.bio?.length || 0 }}/200</div>
-          </div>
-
           <button type="button" class="save-btn" @click="handleSave" :disabled="isSaving">
             {{ isSaving ? '保存中...' : '保存更改' }}
           </button>
@@ -88,16 +73,19 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { showToast } from 'vant';
+import { updateUser } from '../api/user.js';
 
 const router = useRouter();
 const fileInput = ref(null);
 
 const form = ref({
+  id: null,
   name: '',
   email: '',
-  avatar: '',
-  bio: ''
+  password: '',
+  avatar: '' // 占位头像数据
 });
+
 
 const errors = ref({
   name: '',
@@ -116,10 +104,11 @@ const loadUserData = () => {
     try {
       const user = JSON.parse(userData);
       form.value = {
+        id: user.id || null,
         name: user.name || '',
         email: user.email || '',
-        avatar: user.avatar || '',
-        bio: user.bio || ''
+        password: user.password || '',
+        avatar: user.avatar || user.avatarUrl || ''
       };
     } catch (e) {
       console.error('解析用户数据失败:', e);
@@ -201,32 +190,56 @@ const handleSave = async () => {
 
   isSaving.value = true;
 
-  setTimeout(() => {
-    try {
-      const userData = localStorage.getItem('user');
-      let user = {};
-      if (userData) {
-        user = JSON.parse(userData);
+  try {
+    const payload = {
+      id: form.value.id,
+      name: form.value.name.trim(),
+      email: form.value.email.trim(),
+      avatar: form.value.avatar || undefined
+    };
+
+
+    const res = await updateUser(payload);
+    const body = res?.data ?? res;
+
+    if (res?.status === 200 || body?.code === 200) {
+      const returned = body?.data ?? body;
+
+      // 合并到本地缓存
+      const raw = localStorage.getItem('user');
+      let localObj = {};
+      if (raw) {
+        try { localObj = JSON.parse(raw); } catch (_) { localObj = typeof raw === 'string' ? { id: raw } : {}; }
       }
 
-      const updatedUser = {
-        ...user,
-        name: form.value.name.trim(),
-        email: form.value.email.trim(),
-        avatar: form.value.avatar,
-        bio: form.value.bio.trim()
+      const updatedFields = {
+        ...(payload.name !== undefined && { name: payload.name }),
+        ...(payload.email !== undefined && { email: payload.email }),
+        ...(payload.avatar !== undefined && { avatar: payload.avatar })
       };
 
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      // Prefer server-returned values when present
+      if (returned) {
+        if (returned.name !== undefined) updatedFields.name = returned.name;
+        if (returned.email !== undefined) updatedFields.email = returned.email;
+        if (returned.avatar !== undefined) updatedFields.avatar = returned.avatar;
+      }
+
+      const merged = { ...localObj, id: payload.id ?? localObj.id, ...updatedFields };
+
+      localStorage.setItem('user', JSON.stringify(merged));
+
       showToast('保存成功');
       router.push('/profile');
-    } catch (e) {
-      console.error('保存失败:', e);
-      showToast('保存失败，请重试');
-    } finally {
-      isSaving.value = false;
+    } else {
+      showToast(body?.msg || '保存失败，请重试');
     }
-  }, 500);
+  } catch (e) {
+    console.error('保存失败:', e);
+    showToast('保存失败，请重试');
+  } finally {
+    isSaving.value = false;
+  }
 };
 </script>
 
@@ -238,8 +251,11 @@ const handleSave = async () => {
 }
 
 .profile-edit-page {
+  min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-size: cover;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding-bottom: 20px;
 }
 
 .page-container {
@@ -477,42 +493,7 @@ const handleSave = async () => {
   font-weight: 500;
 }
 
-.custom-textarea {
-  width: 100%;
-  padding: 14px 16px;
-  background: #f5f6f8;
-  border: 2px solid transparent;
-  border-radius: 14px;
-  font-size: 14px;
-  color: #202124;
-  outline: none;
-  resize: none;
-  font-family: inherit;
-  line-height: 1.5;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-}
 
-.custom-textarea::placeholder {
-  color: #999;
-}
-
-.custom-textarea:focus {
-  background: #fff;
-  border-color: #667eea;
-  box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.08),
-    0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.char-count {
-  position: absolute;
-  right: 0;
-  bottom: -20px;
-  font-size: 11px;
-  color: #9aa0a6;
-  font-weight: 400;
-}
 
 .save-btn {
   width: 100%;
@@ -546,10 +527,6 @@ const handleSave = async () => {
 }
 
 @media (max-width: 600px) {
-  .profile-edit-page {
-    /* 保持顶部空间更紧凑 */
-  }
-
   .page-container {
     margin-top: 64px;
   }

@@ -6,10 +6,14 @@
           <div class="avatar-wrapper">
             <div class="avatar" :style="avatarStyle">
               <template v-if="user.avatarUrl">
-                <img :src="user.avatarUrl" :alt="user.name" class="avatar-img" />
+                <img
+                  :src="user.avatarUrl"
+                  :alt="user.name"
+                  class="avatar-img"
+                />
               </template>
               <template v-else>
-                {{ (user.name || '未命名用户').charAt(0) }}
+                {{ (user.name || "未命名用户").charAt(0) }}
               </template>
             </div>
           </div>
@@ -28,7 +32,9 @@
           <div class="stats-card">
             <div class="stat-item">
               <span class="stat-icon">📊</span>
-              <span class="stat-value">{{ formatNumber(stats.published) }}</span>
+              <span class="stat-value">{{
+                formatNumber(stats.published)
+              }}</span>
               <span class="stat-label">发布</span>
             </div>
             <div class="stat-divider"></div>
@@ -94,18 +100,12 @@ import { getUserInfo } from '../api/user.js';
 
 const router = useRouter();
 
-getUserInfo('5').then(res => {
-  console.log('用户信息', res);
-}).catch(err => {
-  console.error('获取用户信息失败', err);
-});
 
 const user = ref({
+  id : 5,
   name: '',
   email: '',
-  avatarUrl: '',
-  avatarColor: '',
-  bio: ''
+  password : '',
 });
 
 const avatarStyle = computed(() => {
@@ -171,6 +171,18 @@ const updateStats = (newStats) => {
   localStorage.setItem('userStats', JSON.stringify(stats.value));
 };
 
+// 将用户信息合并到 localStorage.user
+const updateLocalStorage = (newData) => {
+  try {
+    const safe = { ...newData };
+    // 不要在本地存储敏感信息，比如密码
+    if (safe.password !== undefined) delete safe.password;
+    localStorage.setItem('user', JSON.stringify(safe));
+  } catch (e) {
+    console.warn('更新本地用户缓存失败:', e);
+  }
+};
+
 onMounted(() => {
   loadUserData();
   loadStatsData();
@@ -183,46 +195,47 @@ const loadUserData = async () => {
       const parsed = JSON.parse(userData);
       // 先使用本地数据快速渲染
       user.value = {
+        id: parsed.id || '',
         name: parsed.name?.trim() || '未命名用户',
         email: parsed.email?.trim() || '',
-        avatarUrl: parsed.avatarUrl?.trim() || '',
-        avatarColor: parsed.avatarColor?.trim() || '',
-        bio: parsed.bio?.trim() || ''
+        password : parsed.password || '',
       };
 
       // 异步请求后端获取实时用户信息并更新（若接口可用）
-      try {
-        const remote = await getUserInfo();
-        // remote 已被标准化为后端 data 对象（或整个响应体）
-        if (remote) {
-          user.value = {
-            name: (remote.name ?? remote.username ?? remote.nick ?? '').trim() || user.value.name,
-            email: (remote.email ?? '').trim() || user.value.email,
-            avatarUrl: (remote.avatarUrl ?? remote.avatar ?? '').trim() || user.value.avatarUrl,
-            avatarColor: remote.avatarColor || user.value.avatarColor,
-            bio: remote.bio || remote.intro || user.value.bio
-          };
+        try {
+          const remote = await getUserInfo(user.value.id);
+          // getUserInfo 已尽可能返回后端 data 对象；若返回带 {code,data} 格式，兼容处理
+          const remoteData = (remote && remote.status === 200 && remote.data) ? remote.data : remote;
+          console.log(remote && remote.status === 200 && remote.data);
+          console.log(remoteData);
+          console.log(remoteData.data);
+          
+          if (remoteData) {
+            const userInfo = remoteData.data || remoteData;
+            const mappedData = {
+              id: userInfo.id || user.value.id,
+              name: userInfo.name.trim() || user.value.name,
+              email: (userInfo.email ?? '').trim() || user.value.email,
+              password : userInfo.password || user.value.password,
+            };
 
-          // 同步回 localStorage，保持本地缓存和后端一致
-          try {
-            const localRaw = localStorage.getItem('user');
-            let localObj = {};
-            if (localRaw) {
-              try { localObj = JSON.parse(localRaw); } catch (_) { localObj = { id: remote.id || localRaw }; }
-            }
-            const merged = { ...localObj, ...user.value };
-            localStorage.setItem('user', JSON.stringify(merged));
-          } catch (e) {
-            console.warn('更新本地用户缓存失败:', e);
+            user.value = mappedData;
+
+            // 同步到本地存储（会排除敏感字段）
+            updateLocalStorage(mappedData);
+          } else {
+            console.warn('接口返回空数据或格式不匹配:', remote);
           }
+        } catch (error) {
+          console.warn('获取远程用户信息失败:', error);
+          // 保留本地数据，不做更改
         }
-      } catch (e) {
-        console.warn('获取远程用户信息失败:', e);
-      }
+      
     } catch (e) {
       console.error('解析用户数据失败:', e);
       // 解析失败时使用默认值
       user.value = {
+        id: '',
         name: '未命名用户',
         email: '',
         avatarUrl: '',
@@ -233,6 +246,7 @@ const loadUserData = async () => {
   } else {
     // 没有用户数据时使用默认值
     user.value = {
+      id: '',
       name: '未命名用户',
       email: '',
       avatarUrl: '',
@@ -277,7 +291,8 @@ const handleLogout = () => {
 .profile-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   padding-bottom: 70px;
   padding-top: 16px;
 }
@@ -302,9 +317,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -425,11 +438,9 @@ const handleLogout = () => {
   align-items: center;
   column-gap: 16px;
   row-gap: 0;
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s backwards;
-} 
+}
 
 .stat-item {
   display: flex;
@@ -481,9 +492,7 @@ const handleLogout = () => {
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
 }
 
 .settings-card {
@@ -504,13 +513,17 @@ const handleLogout = () => {
 }
 
 .menu-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05),
+    rgba(118, 75, 162, 0.05)
+  );
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -521,7 +534,11 @@ const handleLogout = () => {
 
 .menu-item:hover {
   transform: translateY(0);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05),
+    rgba(118, 75, 162, 0.05)
+  );
 }
 
 .menu-item:active {
@@ -597,7 +614,7 @@ const handleLogout = () => {
 }
 
 .tab-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: 50%;

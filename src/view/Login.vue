@@ -22,9 +22,9 @@ function login() {
     .then((response) => {
       console.log(response);
       
-      if (response.status == 200) {
+      if (response.status == 200 && response.data.code == 200) {
           // 登录成功，保存用户信息到 localStorage
-          localStorage.setItem("user", JSON.stringify(response.data));
+          localStorage.setItem("user", JSON.stringify(response.data.data));
           showSuccessToast("登录成功!");
           // 登录成功后可以跳转到主页或其他页面
           router.push("/index");
