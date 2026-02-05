@@ -2,6 +2,7 @@
 import request from '../api/request.js'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { showToast, showSuccessToast, showFailToast } from 'vant'
 const router = useRouter()
 
 const name = ref('')
@@ -37,12 +38,12 @@ const strengthColor = computed(() => {
 function register() {
   // 表单验证
   if (!name.value || !email.value || !password.value) {
-    alert('请填写所有必填项')
+    showFailToast('请填写所有必填项')
     return
   }
   
   if (password.value !== confirmPassword.value) {
-    alert('两次输入的密码不一致')
+    showFailToast('两次输入的密码不一致')
     return
   }
 
@@ -55,12 +56,12 @@ function register() {
     password: password.value,
   }).then(response => {
     console.log('注册成功:', response.data);
-    alert('注册成功！即将跳转到登录页面...');
+    showSuccessToast('注册成功！即将跳转到登录页面...');
     // 注册成功后跳转到登录界面
     router.push('/login')
   }).catch(error => {
     console.error('注册失败:', error);
-    alert('注册失败，请检查信息是否正确。');
+    showFailToast('注册失败，请检查信息是否正确。');
   }).finally(() => {
     isLoading.value = false
   });

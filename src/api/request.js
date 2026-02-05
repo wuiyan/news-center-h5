@@ -1,10 +1,10 @@
 // 通用请求封装文件
 import axios from 'axios';      // 引入axios库
 
+export const API_URL = import.meta.env.VITE_API_BASE_URL
 // 创建axios实例
 const request = axios.create({
-    baseURL: 'http://192.168.1.13:8080/api', // 设置基础URL
-    // baseURL: 'https://news-center-production.up.railway.app/api', // 设置基础URL
+    baseURL: API_URL,  // 设置基础请求URL
     timeout: 5000,                     // 设置请求超时时间
 });
 

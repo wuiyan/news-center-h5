@@ -2,6 +2,8 @@
 import request from "../api/request.js";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { showToast, showSuccessToast, showFailToast } from 'vant'
+
 
 const router = useRouter()
 
@@ -19,20 +21,22 @@ function login() {
       password: password.value,
     })
     .then((response) => {
-      if (response.code == 200) {
+      console.log(response);
+      
+      if (response.status == 200) {
           // 登录成功，保存用户信息到 localStorage
           localStorage.setItem("user", JSON.stringify(response.data));
-          alert("登录成功!");
+          showSuccessToast("登录成功!");
           // 登录成功后可以跳转到主页或其他页面
           router.push("/index");
       }else{
-          alert(response.msg || "登录失败，请检查用户名和密码。");
+          showFailToast(response.msg || "登录失败，请检查用户名和密码。");
           return;
       } 
     })
     .catch((error) => {
       console.error("登录失败:", error);
-      alert("登录失败，请稍后再试。");
+      showFailToast("登录失败，请稍后再试。");
     });
 }
 </script>
