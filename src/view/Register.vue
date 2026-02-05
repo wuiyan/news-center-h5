@@ -1,6 +1,8 @@
 <script setup>
 import request from '../api/request.js'
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const name = ref('')
 const email = ref('')
@@ -55,7 +57,7 @@ function register() {
     console.log('注册成功:', response.data);
     alert('注册成功！即将跳转到登录页面...');
     // 注册成功后跳转到登录界面
-    window.location.href = '/login'
+    router.push('/login')
   }).catch(error => {
     console.error('注册失败:', error);
     alert('注册失败，请检查信息是否正确。');

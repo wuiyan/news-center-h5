@@ -1,7 +1,8 @@
 <script setup>
 import request from "../api/request.js";
 import { ref } from "vue";
-
+import { useRouter } from "vue-router";
+const router = useRouter()
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -18,6 +19,8 @@ function login() {
     .then((response) => {
       console.log("登录成功:", response.data);
       alert("登录成功!");
+      // 登录成功后可以跳转到主页或其他页面
+      router.push("/index");
     })
     .catch((error) => {
       console.error("登录失败:", error);
