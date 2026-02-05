@@ -1,7 +1,8 @@
 <template>
   <div class="info-home">
-    <!-- 顶部搜索区域 -->
-    <div class="search-header">
+    <!-- 顶部导航区 -->
+    <div class="nav-header">
+      <!-- 搜索栏 -->
       <div class="search-wrapper">
         <span class="search-icon">🔍</span>
         <input
@@ -12,112 +13,146 @@
         />
         <span v-if="searchQuery" class="clear-icon" @click="searchQuery = ''">✕</span>
       </div>
-    </div>
 
-    <!-- 分类标签栏 -->
-    <div class="category-bar">
-      <div class="category-scroll">
-        <div
-          v-for="category in categories"
-          :key="category.id"
-          class="category-tag"
-          :class="{ active: activeCategory === category.id }"
-          @click="filterByCategory(category.id)"
-        >
-          <span class="category-icon">{{ category.icon }}</span>
-          <span>{{ category.name }}</span>
+      <!-- 胶囊式分类标签栏 -->
+      <div class="category-bar">
+        <div class="category-scroll">
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            class="category-tag"
+            :class="{ active: activeCategory === category.id }"
+            @click="filterByCategory(category.id)"
+          >
+            <span class="category-icon">{{ category.icon }}</span>
+            <span>{{ category.name }}</span>
+          </div>
         </div>
       </div>
+
+      <!-- 视觉隔断 -->
+      <div class="nav-divider"></div>
     </div>
 
-    <!-- 双列瀑布流卡片区域 -->
-    <div class="content-container">
-      <div class="waterfall-wrapper">
-        <!-- 左列 -->
-        <div class="waterfall-column">
-          <div
-            v-for="item in leftColumnItems"
-            :key="item.id"
-            class="card-wrapper"
-            @click="openDetail(item)"
-          >
-            <div class="info-card">
-              <!-- 卡片封面图（可选） -->
-              <div v-if="item.cover" class="card-cover" :style="{ backgroundImage: `url(${item.cover})` }">
-                <div class="cover-overlay"></div>
-              </div>
-              
-              <!-- 卡片内容 -->
-              <div class="card-content">
-                <!-- 分类标签 -->
-                <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
-                  {{ getCategoryName(item.category) }}
-                </div>
+    <!-- 内容流区域 -->
+    <div class="content-flow">
+      <div class="content-container">
+        <div class="waterfall-wrapper">
+          <!-- 左列 -->
+          <div class="waterfall-column">
+            <template v-for="(item, index) in leftColumnItems" :key="item.id">
+              <!-- 普通卡片 -->
+              <div
+                v-if="!item.isFocus"
+                class="card-wrapper"
+                @click="openDetail(item)"
+              >
+                <div class="info-card">
+                  <div class="card-content">
+                    <!-- 分类标签胶囊 -->
+                    <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                      {{ getCategoryName(item.category) }}
+                    </div>
 
-                <!-- 标题 -->
-                <h3 class="card-title">{{ item.title }}</h3>
+                    <!-- 标题 -->
+                    <h3 class="card-title">{{ item.title }}</h3>
 
-                <!-- 摘要 -->
-                <p class="card-summary">{{ item.summary }}</p>
+                    <!-- 摘要 -->
+                    <p class="card-summary">{{ item.summary }}</p>
 
-                <!-- 底部信息栏 -->
-                <div class="card-footer">
-                  <div class="card-time">{{ item.publishTime }}</div>
-                  <div class="card-stats">
-                    <span class="stat-item">
-                      <span class="stat-icon">👁️</span>
-                      {{ item.views }}
-                    </span>
-                    <span class="stat-item">
-                      <span class="stat-icon">❤️</span>
-                      {{ item.likes }}
-                    </span>
+                    <!-- 底部信息栏 -->
+                    <div class="card-footer">
+                      <div class="card-time">{{ item.publishTime }}</div>
+                      <div class="card-stats">
+                        <span class="stat-item">
+                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                          {{ item.views }}
+                        </span>
+                        <span class="stat-item">
+                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                          </svg>
+                          {{ item.likes }}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- 右列 -->
-        <div class="waterfall-column">
-          <div
-            v-for="item in rightColumnItems"
-            :key="item.id"
-            class="card-wrapper"
-            @click="openDetail(item)"
-          >
-            <div class="info-card">
-              <!-- 卡片封面图（可选） -->
-              <div v-if="item.cover" class="card-cover" :style="{ backgroundImage: `url(${item.cover})` }">
-                <div class="cover-overlay"></div>
-              </div>
-              
-              <!-- 卡片内容 -->
-              <div class="card-content">
-                <!-- 分类标签 -->
-                <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
-                  {{ getCategoryName(item.category) }}
+              <!-- 焦点卡片（通栏） -->
+              <div
+                v-else
+                class="card-wrapper focus-card-wrapper"
+                @click="openDetail(item)"
+              >
+                <div class="info-card focus-card">
+                  <div class="card-content">
+                    <div class="focus-badge">🔥 焦点资讯</div>
+                    <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                      {{ getCategoryName(item.category) }}
+                    </div>
+                    <h3 class="card-title focus-title">{{ item.title }}</h3>
+                    <p class="card-summary">{{ item.summary }}</p>
+                    <div class="card-footer">
+                      <div class="card-time">{{ item.publishTime }}</div>
+                      <div class="card-stats">
+                        <span class="stat-item">
+                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                          {{ item.views }}
+                        </span>
+                        <span class="stat-item">
+                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                          </svg>
+                          {{ item.likes }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </template>
+          </div>
 
-                <!-- 标题 -->
-                <h3 class="card-title">{{ item.title }}</h3>
-
-                <!-- 摘要 -->
-                <p class="card-summary">{{ item.summary }}</p>
-
-                <!-- 底部信息栏 -->
-                <div class="card-footer">
-                  <div class="card-time">{{ item.publishTime }}</div>
-                  <div class="card-stats">
-                    <span class="stat-item">
-                      <span class="stat-icon">👁️</span>
-                      {{ item.views }}
-                    </span>
-                    <span class="stat-item">
-                      <span class="stat-icon">❤️</span>
-                      {{ item.likes }}
-                    </span>
+          <!-- 右列 -->
+          <div class="waterfall-column">
+            <div
+              v-for="item in rightColumnItems"
+              :key="item.id"
+              class="card-wrapper"
+              @click="openDetail(item)"
+            >
+              <div class="info-card">
+                <div class="card-content">
+                  <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                    {{ getCategoryName(item.category) }}
+                  </div>
+                  <h3 class="card-title">{{ item.title }}</h3>
+                  <p class="card-summary">{{ item.summary }}</p>
+                  <div class="card-footer">
+                    <div class="card-time">{{ item.publishTime }}</div>
+                    <div class="card-stats">
+                      <span class="stat-item">
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        {{ item.views }}
+                      </span>
+                      <span class="stat-item">
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        {{ item.likes }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -183,7 +218,7 @@ const infoItems = ref([
     comments: '328',
     likes: '1.2k',
     publishTime: '2小时前',
-    cover: '' // 可选封面图
+    cover: ''
   },
   {
     id: 2,
@@ -231,7 +266,8 @@ const infoItems = ref([
     comments: '267',
     likes: '1.5k',
     publishTime: '8小时前',
-    cover: ''
+    cover: '',
+    isFocus: true // 焦点卡片
   },
   {
     id: 6,
@@ -292,13 +328,14 @@ const filteredItems = computed(() => {
   return items;
 });
 
-// 双列瀑布流分配
+// 双列瀑布流分配（焦点卡片占据左列通栏位置）
 const leftColumnItems = computed(() => {
   return filteredItems.value.filter((_, index) => index % 2 === 0);
 });
 
 const rightColumnItems = computed(() => {
-  return filteredItems.value.filter((_, index) => index % 2 === 1);
+  // 右列过滤掉焦点卡片
+  return filteredItems.value.filter((item, index) => index % 2 === 1 && !item.isFocus);
 });
 
 // 分类筛选
@@ -306,11 +343,10 @@ const filterByCategory = (categoryId) => {
   activeCategory.value = categoryId;
 };
 
-// 打开详情（可以跳转到详情页或弹出详情）
+// 打开详情
 const openDetail = (item) => {
   console.log('打开详情:', item);
   // 这里可以添加跳转逻辑或弹窗逻辑
-  // 例如: router.push(`/detail/${item.id}`)
 };
 
 // 获取分类名称
@@ -342,52 +378,54 @@ const getCategoryColor = (categoryId) => {
 .info-home {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding-bottom: 70px; /* 为底部Tab栏留出空间 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding-bottom: 70px;
 }
 
-/* ==================== 顶部搜索区域 ==================== */
-.search-header {
+/* ==================== 顶部导航区 ==================== */
+.nav-header {
   position: sticky;
   top: 0;
   z-index: 101;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
-  padding: 12px 16px;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 16px 0;
 }
 
+/* 搜索栏优化 - 圆角 + 内阴影 */
 .search-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(240, 242, 245, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 10px 16px;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
+  background: #f5f6f8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .search-wrapper:focus-within {
-  background: rgba(255, 255, 255, 0.95);
+  background: #fff;
   border-color: #667eea;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.08),
+    0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .search-icon {
-  font-size: 18px;
-  margin-right: 10px;
-  opacity: 0.6;
+  font-size: 16px;
+  margin-right: 8px;
+  opacity: 0.5;
 }
 
 .search-input {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
   outline: none;
 }
@@ -397,88 +435,100 @@ const getCategoryColor = (categoryId) => {
 }
 
 .clear-icon {
-  font-size: 16px;
+  font-size: 14px;
   color: #999;
   cursor: pointer;
   padding: 4px;
   transition: all 0.2s;
+  border-radius: 50%;
 }
 
 .clear-icon:hover {
   color: #667eea;
-  transform: rotate(90deg);
+  background: rgba(102, 126, 234, 0.1);
 }
 
-/* ==================== 分类标签栏 ==================== */
+/* 胶囊式分类标签栏 */
 .category-bar {
-  position: sticky;
-  top: 52px; /* 搜索栏高度 */
-  z-index: 100;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.06);
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 12px;
 }
 
 .category-scroll {
   display: flex;
-  gap: 10px;
-  padding: 0 16px;
+  gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .category-scroll::-webkit-scrollbar {
   display: none;
 }
 
+/* 胶囊式标签 */
 .category-tag {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
-  background: rgba(248, 249, 250, 0.9);
-  backdrop-filter: blur(10px);
-  border: 2px solid transparent;
+  gap: 4px;
+  padding: 7px 14px;
+  background: #e8eaed;
   border-radius: 18px;
-  color: #666;
+  color: #5f6368;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  user-select: none;
 }
 
-.category-tag:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+.category-tag:hover:not(.active) {
+  background: #dadce0;
+  transform: translateY(-1px);
 }
 
+/* 选中态胶囊 - 主题色填充 + 阴影 */
 .category-tag.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-color: transparent;
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transform: scale(1.05);
 }
 
 .category-icon {
-  font-size: 15px;
+  font-size: 14px;
 }
 
-/* ==================== 内容容器 ==================== */
+/* 视觉隔断 - 渐变分割线 */
+.nav-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(102, 126, 234, 0) 0%,
+    rgba(102, 126, 234, 0.15) 50%,
+    rgba(102, 126, 234, 0) 100%
+  );
+  margin: 0 -16px;
+}
+
+/* ==================== 内容流区域 ==================== */
+.content-flow {
+  /* 浅紫色半透明背景 - 与主色调呼应 */
+  background: rgba(102, 126, 234, 0.08);
+  min-height: calc(100vh - 180px);
+  padding-top: 16px;
+}
+
 .content-container {
   max-width: 750px;
   margin: 0 auto;
-  padding: 16px 12px;
+  /* 侧边留白优化 - 左右各20px */
+  padding: 0 20px 20px;
 }
 
-/* ==================== 瀑布流容器 ==================== */
+/* 瀑布流容器 */
 .waterfall-wrapper {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -491,15 +541,15 @@ const getCategoryColor = (categoryId) => {
   gap: 12px;
 }
 
-/* ==================== 卡片样式 ==================== */
+/* ==================== 普通卡片样式 ==================== */
 .card-wrapper {
-  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(25px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -507,72 +557,48 @@ const getCategoryColor = (categoryId) => {
   }
 }
 
+/* 悬浮式卡片 - 大圆角 + 双层阴影 */
 .info-card {
-  background: rgba(255, 255, 255, 0.98);
+  background: linear-gradient(to bottom, 
+    rgba(255, 255, 255, 1) 0%, 
+    rgba(255, 255, 255, 0.98) 100%
+  );
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 双层阴影 - 底层模糊 + 上层锐化 */
   box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(255, 255, 255, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.09);
   position: relative;
 }
 
-/* 增强玻璃效果：添加高光 */
-.info-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.8), 
-    transparent
-  );
-  opacity: 0.6;
-}
-
+/* 悬停反馈 - 上移 + 阴影增强 + 标签亮度 */
 .info-card:hover {
-  transform: translateY(-6px) scale(1.02);
+  transform: translateY(-2px);
   box-shadow: 
-    0 12px 35px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(102, 126, 234, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
+    0 6px 20px rgba(0, 0, 0, 0.08),
+    0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
+.info-card:hover .card-category {
+  filter: brightness(1.1);
+}
+
+/* 点击动效 - 按压缩小 */
 .info-card:active {
-  transform: translateY(-3px) scale(1.01);
+  transform: translateY(-2px) scale(0.98);
+  transition: transform 0.1s;
 }
 
-/* ==================== 卡片封面（可选） ==================== */
-.card-cover {
-  width: 100%;
-  height: 140px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
-
-.cover-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, 
-    transparent 0%, 
-    rgba(0, 0, 0, 0.1) 100%
-  );
-}
-
-/* ==================== 卡片内容 ==================== */
 .card-content {
   padding: 14px;
 }
 
+/* 分类标签胶囊 - 左上角 */
 .card-category {
   display: inline-block;
   padding: 4px 10px;
@@ -581,13 +607,15 @@ const getCategoryColor = (categoryId) => {
   font-weight: 600;
   color: white;
   margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: filter 0.3s;
 }
 
+/* 标题 - 16px 加粗深灰 */
 .card-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #202124;
   margin-bottom: 8px;
   line-height: 1.4;
   display: -webkit-box;
@@ -597,9 +625,10 @@ const getCategoryColor = (categoryId) => {
   text-overflow: ellipsis;
 }
 
+/* 摘要 - 14px 浅灰 */
 .card-summary {
-  font-size: 12px;
-  color: #666;
+  font-size: 14px;
+  color: #5f6368;
   line-height: 1.5;
   margin-bottom: 10px;
   display: -webkit-box;
@@ -609,18 +638,19 @@ const getCategoryColor = (categoryId) => {
   text-overflow: ellipsis;
 }
 
-/* ==================== 卡片底部信息栏 ==================== */
+/* 卡片底部信息栏 */
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 10px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .card-time {
-  font-size: 11px;
-  color: #999;
+  font-size: 12px;
+  color: #9aa0a6;
+  font-weight: 400;
 }
 
 .card-stats {
@@ -631,13 +661,55 @@ const getCategoryColor = (categoryId) => {
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  color: #999;
+  gap: 4px;
+  font-size: 12px;
+  color: #9aa0a6;
+  font-weight: 400;
 }
 
+/* 简约线性图标 */
 .stat-icon {
-  font-size: 13px;
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+/* ==================== 焦点卡片样式 ==================== */
+.focus-card-wrapper {
+  /* 焦点卡片占据通栏 */
+  grid-column: 1 / -1;
+}
+
+.focus-card {
+  /* 更厚重的阴影 */
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.08),
+    0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.focus-card:hover {
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 4px 10px rgba(0, 0, 0, 0.14);
+}
+
+.focus-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  margin-right: 6px;
+  box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+}
+
+/* 焦点卡片标题 - 18px 加粗 */
+.focus-title {
+  font-size: 18px;
+  font-weight: 800;
 }
 
 /* ==================== 底部Tab栏 ==================== */
@@ -652,7 +724,7 @@ const getCategoryColor = (categoryId) => {
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
 }
 
@@ -679,7 +751,7 @@ const getCategoryColor = (categoryId) => {
   height: 3px;
   background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 0 0 3px 3px;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-item.active::before {
@@ -689,17 +761,17 @@ const getCategoryColor = (categoryId) => {
 .tab-icon {
   font-size: 24px;
   transition: all 0.3s ease;
-  filter: grayscale(1);
+  filter: grayscale(1) opacity(0.6);
 }
 
 .tab-item.active .tab-icon {
-  filter: grayscale(0);
-  transform: scale(1.1);
+  filter: grayscale(0) opacity(1);
+  transform: scale(1.08);
 }
 
 .tab-label {
   font-size: 11px;
-  color: #999;
+  color: #9aa0a6;
   font-weight: 500;
   transition: all 0.3s ease;
 }
@@ -710,22 +782,38 @@ const getCategoryColor = (categoryId) => {
 }
 
 /* ==================== 响应式设计 ==================== */
+@media (min-width: 601px) and (max-width: 768px) {
+  /* 平板端 - 增加卡片间距 */
+  .waterfall-wrapper {
+    gap: 16px;
+  }
+  
+  .waterfall-column {
+    gap: 16px;
+  }
+}
+
 @media (max-width: 600px) {
-  .search-header {
-    padding: 10px 12px;
+  .nav-header {
+    padding: 10px 12px 0;
+  }
+
+  .search-wrapper {
+    padding: 9px 12px;
+    margin-bottom: 10px;
   }
 
   .category-bar {
-    padding: 10px 0;
+    padding-bottom: 10px;
   }
 
   .category-tag {
-    padding: 7px 14px;
+    padding: 6px 12px;
     font-size: 12px;
   }
 
   .content-container {
-    padding: 12px 8px;
+    padding: 0 12px 16px;
   }
 
   .waterfall-wrapper {
@@ -737,7 +825,7 @@ const getCategoryColor = (categoryId) => {
   }
 
   .info-card {
-    border-radius: 14px;
+    border-radius: 12px;
   }
 
   .card-content {
@@ -745,39 +833,57 @@ const getCategoryColor = (categoryId) => {
   }
 
   .card-title {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .card-summary {
-    font-size: 12px;
+    font-size: 13px;
+  }
+
+  .focus-title {
+    font-size: 17px;
   }
 }
 
-@media (max-width: 400px) {
-  .content-container {
-    padding: 10px 6px;
+/* ==================== 骨架屏加载效果 ==================== */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
   }
+  100% {
+    background-position: 468px 0;
+  }
+}
 
-  .waterfall-wrapper {
-    gap: 8px;
-  }
-
-  .waterfall-column {
-    gap: 8px;
-  }
+.skeleton-card {
+  background: linear-gradient(
+    to right,
+    rgba(240, 242, 245, 0.95) 0%,
+    rgba(250, 250, 250, 0.95) 20%,
+    rgba(240, 242, 245, 0.95) 40%,
+    rgba(240, 242, 245, 0.95) 100%
+  );
+  background-size: 800px 104px;
+  animation: shimmer 1.2s infinite;
+  border-radius: 14px;
+  height: 200px;
 }
 
 /* ==================== 无数据提示 ==================== */
 .no-data {
   text-align: center;
-  padding: 60px 20px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
+  padding: 80px 20px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .no-data-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.6;
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.no-data-text {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
 }
 </style>
