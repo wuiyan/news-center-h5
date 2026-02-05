@@ -90,8 +90,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getUserInfo } from '../api/user.js';
 
 const router = useRouter();
+
+getUserInfo('5').then(res => {
+  console.log('用户信息', res);
+}).catch(err => {
+  console.error('获取用户信息失败', err);
+});
 
 const user = ref({
   name: '',
@@ -169,12 +176,12 @@ onMounted(() => {
   loadStatsData();
 });
 
-const loadUserData = () => {
+const loadUserData = async () => {
   const userData = localStorage.getItem('user');
   if (userData) {
     try {
       const parsed = JSON.parse(userData);
-      // 验证并设置用户数据，使用默认值防止空数据显示
+      // 先使用本地数据快速渲染
       user.value = {
         name: parsed.name?.trim() || '未命名用户',
         email: parsed.email?.trim() || '',
@@ -182,6 +189,36 @@ const loadUserData = () => {
         avatarColor: parsed.avatarColor?.trim() || '',
         bio: parsed.bio?.trim() || ''
       };
+
+      // 异步请求后端获取实时用户信息并更新（若接口可用）
+      try {
+        const remote = await getUserInfo();
+        // remote 已被标准化为后端 data 对象（或整个响应体）
+        if (remote) {
+          user.value = {
+            name: (remote.name ?? remote.username ?? remote.nick ?? '').trim() || user.value.name,
+            email: (remote.email ?? '').trim() || user.value.email,
+            avatarUrl: (remote.avatarUrl ?? remote.avatar ?? '').trim() || user.value.avatarUrl,
+            avatarColor: remote.avatarColor || user.value.avatarColor,
+            bio: remote.bio || remote.intro || user.value.bio
+          };
+
+          // 同步回 localStorage，保持本地缓存和后端一致
+          try {
+            const localRaw = localStorage.getItem('user');
+            let localObj = {};
+            if (localRaw) {
+              try { localObj = JSON.parse(localRaw); } catch (_) { localObj = { id: remote.id || localRaw }; }
+            }
+            const merged = { ...localObj, ...user.value };
+            localStorage.setItem('user', JSON.stringify(merged));
+          } catch (e) {
+            console.warn('更新本地用户缓存失败:', e);
+          }
+        }
+      } catch (e) {
+        console.warn('获取远程用户信息失败:', e);
+      }
     } catch (e) {
       console.error('解析用户数据失败:', e);
       // 解析失败时使用默认值

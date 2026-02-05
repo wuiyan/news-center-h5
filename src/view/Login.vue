@@ -15,8 +15,7 @@ const isLoading = ref(false)
 
 function login() {
   // 在这里添加登录逻辑，例如表单验证和发送请求
-  request
-    .post("/user/login", {
+  request.post("/user/login", {
       email: username.value,
       password: password.value,
     })
