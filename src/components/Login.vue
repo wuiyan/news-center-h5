@@ -1,6 +1,6 @@
 <script setup>
-import request from '../api/request.js'
-import { ref } from 'vue'
+import request from "../api/request.js";
+import { ref } from "vue";
 
 const username = ref('')
 const password = ref('')
@@ -10,38 +10,40 @@ const isLoading = ref(false)
 
 function login() {
   // 在这里添加登录逻辑，例如表单验证和发送请求
-  request.post('/user/login', {
-    email: username.value,
-    password: password.value
-  }).then(response => {
-    console.log('登录成功:', response.data);
-    alert('登录成功!');
-  }).catch(error => {
-    console.error('登录失败:', error);
-    alert('登录失败，请检查用户名和密码。');
-  });
+  request
+    .post("/user/login", {
+      email: username.value,
+      password: password.value,
+    })
+    .then((response) => {
+      console.log("登录成功:", response.data);
+      alert("登录成功!");
+    })
+    .catch((error) => {
+      console.error("登录失败:", error);
+      alert("登录失败，请检查用户名和密码。");
+    });
 }
-
 </script>
 
 <template>
-<!-- 登录界面  移动端H5 -->
-<div class="login-page">
+  <!-- 登录界面  移动端H5 -->
+  <div class="login-page">
     <div class="login-card">
       <div class="logo-section">
         <div class="logo">👋</div>
         <h1 class="title">欢迎回来</h1>
         <p class="subtitle">请登录您的账户</p>
       </div>
-      
+
       <form class="login-form" @submit.prevent="login">
         <div class="input-group">
           <div class="input-wrapper">
             <span class="icon">👤</span>
-            <input 
-              type="text" 
-              v-model="username" 
-              placeholder="请输入用户名"
+            <input
+              type="text"
+              v-model="username"
+              placeholder="请输入邮箱"
               class="input-field"
             />
           </div>
@@ -50,14 +52,14 @@ function login() {
         <div class="input-group">
           <div class="input-wrapper">
             <span class="icon">🔒</span>
-            <input 
-              :type="showPassword ? 'text' : 'password'" 
-              v-model="password" 
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              v-model="password"
               placeholder="请输入密码"
               class="input-field"
             />
             <span class="toggle-password" @click="showPassword = !showPassword">
-              {{ showPassword ? '🙈' : '👁️' }}
+              {{ showPassword ? "🙈" : "👁️" }}
             </span>
           </div>
         </div>
@@ -74,12 +76,9 @@ function login() {
           <span v-if="!isLoading">登 录</span>
           <span v-else class="spinner"></span>
         </button>
-
       </form>
 
-      <p class="register-link">
-        还没有账户？<a href="/register">立即注册</a>
-      </p>
+      <p class="register-link">还没有账户？<a href="/register">立即注册</a></p>
     </div>
   </div>
 </template>
@@ -98,7 +97,7 @@ function login() {
   justify-content: center;
   padding: 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .login-card {
@@ -108,9 +107,7 @@ function login() {
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 40px 30px;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
   animation: slideUp 0.6s ease-out;
 }
 
@@ -280,14 +277,16 @@ function login() {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: white;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .divider {
@@ -300,7 +299,7 @@ function login() {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, transparent, #ddd, transparent);
@@ -365,17 +364,17 @@ function login() {
     padding: 30px 20px;
     border-radius: 20px;
   }
-  
+
   .title {
     font-size: 24px;
   }
-  
+
   .logo {
     width: 70px;
     height: 70px;
     font-size: 30px;
   }
-  
+
   .social-login {
     grid-template-columns: 1fr;
   }
