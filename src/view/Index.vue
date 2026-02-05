@@ -175,7 +175,7 @@
       <div
         class="tab-item"
         :class="{ active: activeTab === 'profile' }"
-        @click="activeTab = 'profile'"
+        @click="goToProfile"
       >
         <span class="tab-icon">👤</span>
         <span class="tab-label">我的</span>
@@ -186,6 +186,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // 分类数据
 const categories = ref([
@@ -366,6 +369,10 @@ const getCategoryColor = (categoryId) => {
   };
   return colorMap[categoryId] || 'linear-gradient(135deg, #667eea, #764ba2)';
 };
+
+const goToProfile = () => {
+  router.push('/profile');
+};
 </script>
 
 <style scoped>
@@ -399,7 +406,7 @@ const getCategoryColor = (categoryId) => {
   display: flex;
   align-items: center;
   background: #f5f6f8;
-  border-radius: 8px;
+  border-radius: 15px;
   padding: 10px 14px;
   margin-bottom: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -718,7 +725,7 @@ const getCategoryColor = (categoryId) => {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 102;
+  z-index: 1000;
   display: flex;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(30px) saturate(180%);
@@ -726,6 +733,7 @@ const getCategoryColor = (categoryId) => {
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  min-height: 60px;
 }
 
 .tab-item {
