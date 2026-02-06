@@ -8,6 +8,7 @@ import Profile from '../view/Profile.vue'
 import ProfileEdit from '../view/ProfileEdit.vue'
 import Settings from '../view/Settings.vue'
 import About from '../view/About.vue'
+import Detail from '../view/Detail.vue'
 
 
 const routes = [
@@ -15,6 +16,7 @@ const routes = [
     { path: '/login', component: Login },
     { path: '/register', component: Register },
     { path: '/index', component: Index },
+    { path: '/detail', component: Detail },
     {
         path: '/profile',
         component: Profile,

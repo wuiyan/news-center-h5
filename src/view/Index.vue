@@ -11,7 +11,9 @@
           placeholder="搜索资讯内容..."
           class="search-input"
         />
-        <span v-if="searchQuery" class="clear-icon" @click="searchQuery = ''">✕</span>
+        <span v-if="searchQuery" class="clear-icon" @click="searchQuery = ''"
+          >✕</span
+        >
       </div>
 
       <!-- 胶囊式分类标签栏 -->
@@ -36,6 +38,13 @@
 
     <!-- 内容流区域 -->
     <div class="content-flow">
+      <!-- Vant 全屏加载 -->
+    <van-overlay :show="isLoading" class-name="loading-overlay">
+      <div class="loading-wrapper">
+        <van-loading type="spinner" color="#1989fa" size="40px" />
+        <span class="loading-text">加载中...</span>
+      </div>
+    </van-overlay>
       <div class="content-container">
         <div class="waterfall-wrapper">
           <!-- 左列 -->
@@ -50,7 +59,10 @@
                 <div class="info-card">
                   <div class="card-content">
                     <!-- 分类标签胶囊 -->
-                    <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                    <div
+                      class="card-category"
+                      :style="{ background: getCategoryColor(item.category) }"
+                    >
                       {{ getCategoryName(item.category) }}
                     </div>
 
@@ -65,15 +77,31 @@
                       <div class="card-time">{{ item.publishTime }}</div>
                       <div class="card-stats">
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            ></path>
                             <circle cx="12" cy="12" r="3"></circle>
                           </svg>
                           {{ item.views }}
                         </span>
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            ></path>
                           </svg>
                           {{ item.likes }}
                         </span>
@@ -92,7 +120,10 @@
                 <div class="info-card focus-card">
                   <div class="card-content">
                     <div class="focus-badge">🔥 焦点资讯</div>
-                    <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                    <div
+                      class="card-category"
+                      :style="{ background: getCategoryColor(item.category) }"
+                    >
                       {{ getCategoryName(item.category) }}
                     </div>
                     <h3 class="card-title focus-title">{{ item.title }}</h3>
@@ -101,15 +132,31 @@
                       <div class="card-time">{{ item.publishTime }}</div>
                       <div class="card-stats">
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            ></path>
                             <circle cx="12" cy="12" r="3"></circle>
                           </svg>
                           {{ item.views }}
                         </span>
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            ></path>
                           </svg>
                           {{ item.likes }}
                         </span>
@@ -131,7 +178,10 @@
             >
               <div class="info-card">
                 <div class="card-content">
-                  <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                  <div
+                    class="card-category"
+                    :style="{ background: getCategoryColor(item.category) }"
+                  >
                     {{ getCategoryName(item.category) }}
                   </div>
                   <h3 class="card-title">{{ item.title }}</h3>
@@ -140,15 +190,31 @@
                     <div class="card-time">{{ item.publishTime }}</div>
                     <div class="card-stats">
                       <span class="stat-item">
-                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <svg
+                          class="stat-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                          ></path>
                           <circle cx="12" cy="12" r="3"></circle>
                         </svg>
                         {{ item.views }}
                       </span>
                       <span class="stat-item">
-                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        <svg
+                          class="stat-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                          ></path>
                         </svg>
                         {{ item.likes }}
                       </span>
@@ -185,149 +251,104 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { getNewsList, getNewsCategories } from "../api/news.js";
+import { onMounted } from "vue";
 
 const router = useRouter();
 
 // 分类数据
 const categories = ref([
-  { id: 'all', name: '全部', icon: '📱' },
-  { id: 'tech', name: '科技', icon: '💻' },
-  { id: 'finance', name: '财经', icon: '💰' },
-  { id: 'entertainment', name: '娱乐', icon: '🎬' },
-  { id: 'sports', name: '体育', icon: '⚽' },
-  { id: 'life', name: '生活', icon: '🌟' }
+  { id: "all", name: "全部", icon: "📱" },
+  { id: "tech", name: "科技", icon: "💻" },
+  { id: "finance", name: "财经", icon: "💰" },
+  { id: "entertainment", name: "娱乐", icon: "🎬" },
+  { id: "sports", name: "体育", icon: "⚽" },
+  { id: "life", name: "生活", icon: "🌟" },
 ]);
 
 // 当前激活分类
-const activeCategory = ref('all');
+const activeCategory = ref("all");
 
 // 当前激活的Tab
-const activeTab = ref('home');
+const activeTab = ref("home");
+
+// 加载状态
+const isLoading = ref(false);
 
 // 搜索关键词
-const searchQuery = ref('');
+const searchQuery = ref("");
+
+// 获取信息列表
+const infoItems = ref([]);
 
 // 模拟信息数据
-const infoItems = ref([
+infoItems.value = [
   {
     id: 1,
-    category: 'tech',
-    title: 'AI技术突破：新一代大语言模型发布',
-    summary: '最新的AI模型在多项基准测试中刷新记录，展现出更强的理解和生成能力...',
-    content: '经过数月的研发，新一代大语言模型正式发布。该模型在自然语言理解、代码生成、多模态处理等方面都有显著提升。',
-    views: '12.5k',
-    comments: '328',
-    likes: '1.2k',
-    publishTime: '2小时前',
-    cover: ''
-  },
-  {
-    id: 2,
-    category: 'finance',
-    title: '全球股市震荡，投资者关注央行政策',
-    summary: '受多重因素影响,主要股指出现波动,市场静待政策信号...',
-    content: '本周全球主要股市呈现震荡态势。分析师认为,投资者正在密切关注各国央行的货币政策走向。',
-    views: '8.2k',
-    comments: '156',
-    likes: '892',
-    publishTime: '4小时前',
-    cover: ''
-  },
-  {
-    id: 3,
-    category: 'entertainment',
-    title: '新片票房破纪录，观众好评如潮',
-    summary: '最新上映的科幻大片首周末票房突破5亿,成为年度现象级作品...',
-    content: '这部备受期待的科幻大片不负众望,上映三天票房就突破5亿大关。',
-    views: '15.8k',
-    comments: '892',
-    likes: '2.3k',
-    publishTime: '5小时前',
-    cover: ''
-  },
-  {
-    id: 4,
-    category: 'sports',
-    title: '篮球联赛季后赛激战正酣',
-    summary: '多场比赛进入白热化阶段,球星表现引发热议...',
-    content: '本赛季季后赛竞争格外激烈,多支球队实力接近。',
-    views: '6.3k',
-    comments: '445',
-    likes: '567',
-    publishTime: '7小时前',
-    cover: ''
-  },
-  {
-    id: 5,
-    category: 'tech',
-    title: '5G应用场景持续扩展，智慧城市建设提速',
-    summary: '5G技术在交通、医疗、教育等领域的应用日益成熟...',
-    content: '随着5G网络覆盖的不断完善,其在各行各业的应用场景持续扩展。',
-    views: '9.7k',
-    comments: '267',
-    likes: '1.5k',
-    publishTime: '8小时前',
-    cover: '',
-    isFocus: true // 焦点卡片
-  },
-  {
-    id: 6,
-    category: 'life',
-    title: '健康饮食新趋势：植物基食品受追捧',
-    summary: '越来越多的消费者选择植物基饮食,市场规模快速增长...',
-    content: '近年来,植物基食品在全球范围内掀起热潮。',
-    views: '5.1k',
-    comments: '189',
-    likes: '723',
-    publishTime: '10小时前',
-    cover: ''
-  },
-  {
-    id: 7,
-    category: 'tech',
-    title: '量子计算取得新突破，商业化应用加速',
-    summary: '研究团队成功实现量子纠错,为大规模量子计算铺平道路...',
-    content: '最新研究在量子纠错技术上取得重大突破,显著提高了量子比特的稳定性。',
-    views: '11.2k',
-    comments: '298',
-    likes: '1.8k',
-    publishTime: '3小时前',
-    cover: ''
-  },
-  {
-    id: 8,
-    category: 'entertainment',
-    title: '音乐节热潮来袭，多场大型演出即将开演',
-    summary: '春季音乐节季拉开帷幕,国内外知名艺人齐聚...',
-    content: '随着天气转暖,各大音乐节陆续公布阵容。',
-    views: '13.6k',
-    comments: '521',
-    likes: '2.1k',
-    publishTime: '6小时前',
-    cover: ''
+    category: "tech",
+    title: "AI技术突破：新一代大语言模型发布",
+    summary:
+      "最新的AI模型在多项基准测试中刷新记录，展现出更强的理解和生成能力...",
+    content:
+      "经过数月的研发，新一代大语言模型正式发布。该模型在自然语言理解、代码生成、多模态处理等方面都有显著提升。",
+    views: "12.5k",
+    comments: "328",
+    likes: "1.2k",
+    publishTime: "2小时前",
+    cover: "",
   }
-]);
+];
+
+// 挂载时获取信息列表
+onMounted(() => {
+  loadNewsCategories();
+  loadNewsList();
+});
+
+// 获取信息分类
+const loadNewsCategories = async () => {
+  try {
+    const categoryData = await getNewsCategories();
+    categories.value = categoryData.data || [];
+  } catch (error) {
+    console.error("获取分类失败:", error);
+  }
+};
+
+// 获取信息列表
+const loadNewsList = async () => {
+  try {
+    isLoading.value = true;
+    const newList = await getNewsList();
+    infoItems.value = newList.data.list || [];
+  } catch (error) {
+    console.error("获取信息列表失败:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 // 过滤后的信息列表（分类 + 搜索）
 const filteredItems = computed(() => {
   let items = infoItems.value;
-  
+
   // 按分类过滤
-  if (activeCategory.value !== 'all') {
-    items = items.filter(item => item.category === activeCategory.value);
+  if (activeCategory.value !== "all") {
+    items = items.filter((item) => item.category === activeCategory.value);
   }
-  
+
   // 按搜索关键词过滤
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase();
-    items = items.filter(item => 
-      item.title.toLowerCase().includes(query) || 
-      item.summary.toLowerCase().includes(query)
+    items = items.filter(
+      (item) =>
+        item.title.toLowerCase().includes(query) ||
+        item.summary.toLowerCase().includes(query)
     );
   }
-  
+
   return items;
 });
 
@@ -338,7 +359,9 @@ const leftColumnItems = computed(() => {
 
 const rightColumnItems = computed(() => {
   // 右列过滤掉焦点卡片
-  return filteredItems.value.filter((item, index) => index % 2 === 1 && !item.isFocus);
+  return filteredItems.value.filter(
+    (item, index) => index % 2 === 1 && !item.isFocus
+  );
 });
 
 // 分类筛选
@@ -348,30 +371,30 @@ const filterByCategory = (categoryId) => {
 
 // 打开详情
 const openDetail = (item) => {
-  console.log('打开详情:', item);
+  console.log("打开详情:", item);
   // 这里可以添加跳转逻辑或弹窗逻辑
 };
 
 // 获取分类名称
 const getCategoryName = (categoryId) => {
-  const category = categories.value.find(c => c.id === categoryId);
-  return category ? category.name : '';
+  const category = categories.value.find((c) => c.id === categoryId);
+  return category ? category.name : "";
 };
 
 // 获取分类颜色
 const getCategoryColor = (categoryId) => {
   const colorMap = {
-    tech: 'linear-gradient(135deg, #667eea, #764ba2)',
-    finance: 'linear-gradient(135deg, #f093fb, #f5576c)',
-    entertainment: 'linear-gradient(135deg, #fa709a, #fee140)',
-    sports: 'linear-gradient(135deg, #30cfd0, #330867)',
-    life: 'linear-gradient(135deg, #a8edea, #fed6e3)'
+    tech: "linear-gradient(135deg, #667eea, #764ba2)",
+    finance: "linear-gradient(135deg, #f093fb, #f5576c)",
+    entertainment: "linear-gradient(135deg, #fa709a, #fee140)",
+    sports: "linear-gradient(135deg, #30cfd0, #330867)",
+    life: "linear-gradient(135deg, #a8edea, #fed6e3)",
   };
-  return colorMap[categoryId] || 'linear-gradient(135deg, #667eea, #764ba2)';
+  return colorMap[categoryId] || "linear-gradient(135deg, #667eea, #764ba2)";
 };
 
 const goToProfile = () => {
-  router.push('/profile');
+  router.push("/profile");
 };
 </script>
 
@@ -385,7 +408,8 @@ const goToProfile = () => {
 .info-home {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   padding-bottom: 70px;
 }
 
@@ -417,8 +441,7 @@ const goToProfile = () => {
 .search-wrapper:focus-within {
   background: #fff;
   border-color: #667eea;
-  box-shadow: 
-    inset 0 1px 3px rgba(0, 0, 0, 0.08),
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08),
     0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -566,8 +589,9 @@ const goToProfile = () => {
 
 /* 悬浮式卡片 - 大圆角 + 双层阴影 */
 .info-card {
-  background: linear-gradient(to bottom, 
-    rgba(255, 255, 255, 1) 0%, 
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
     rgba(255, 255, 255, 0.98) 100%
   );
   backdrop-filter: blur(30px) saturate(180%);
@@ -577,18 +601,14 @@ const goToProfile = () => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   /* 双层阴影 - 底层模糊 + 上层锐化 */
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
   position: relative;
 }
 
 /* 悬停反馈 - 上移 + 阴影增强 + 标签亮度 */
 .info-card:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 6px 20px rgba(0, 0, 0, 0.08),
-    0 3px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .info-card:hover .card-category {
@@ -689,15 +709,11 @@ const goToProfile = () => {
 
 .focus-card {
   /* 更厚重的阴影 */
-  box-shadow: 
-    0 6px 20px rgba(0, 0, 0, 0.08),
-    0 3px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .focus-card:hover {
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.1),
-    0 4px 10px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.14);
 }
 
 .focus-badge {
@@ -750,7 +766,7 @@ const goToProfile = () => {
 }
 
 .tab-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: 50%;
@@ -795,7 +811,7 @@ const goToProfile = () => {
   .waterfall-wrapper {
     gap: 16px;
   }
-  
+
   .waterfall-column {
     gap: 16px;
   }
@@ -893,5 +909,27 @@ const goToProfile = () => {
 .no-data-text {
   font-size: 15px;
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* ==================== 遮罩层 ==================== */
+
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+}
+
+.loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #666;
 }
 </style>
