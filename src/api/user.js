@@ -6,8 +6,8 @@ export function login(data) {
 }
 
 // 获取用户信息
-export async function getUserInfo(userId) {
-    return request.get(`/user/info/${userId}`);
+export async function getUserInfo() {
+    return request.get('/user/me');
 }
 
 // 更新用户信息（PUT /user/update）

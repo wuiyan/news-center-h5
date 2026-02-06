@@ -3,6 +3,7 @@ import request from "../api/request.js";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { showToast, showSuccessToast, showFailToast } from 'vant'
+import { getUserInfo } from "../api/user.js";
 
 
 const router = useRouter()
@@ -22,9 +23,16 @@ function login() {
     .then((response) => {
       console.log(response);
       
-      if (response.status == 200 && response.data.code == 200) {
+      if (response.code == 200) {
           // 登录成功，保存用户信息到 localStorage
-          localStorage.setItem("user", JSON.stringify(response.data.data));
+          localStorage.setItem("token", response.data);
+          const userInfo = await getUserInfo();
+          if(userInfo.code != 200){
+              showFailToast("获取用户信息失败，请稍后再试。");
+              return;
+          }
+          localStorage.setItem("user", JSON.stringify(userInfo.data));
+          
           showSuccessToast("登录成功!");
           // 登录成功后可以跳转到主页或其他页面
           router.push("/index");

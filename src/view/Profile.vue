@@ -94,61 +94,61 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { getUserInfo } from '../api/user.js';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { getUserInfo } from "../api/user.js";
 
 const router = useRouter();
 
-
 const user = ref({
-  id : 5,
-  name: '',
-  email: '',
-  password : '',
+  id: 5,
+  name: "",
+  email: "",
+  password: "",
 });
 
 const avatarStyle = computed(() => {
   if (user.value.avatarUrl) {
     return {
-      background: '#f0f2f5'
+      background: "#f0f2f5",
     };
   }
   return {
-    background: user.value.avatarColor || 'linear-gradient(135deg, #667eea, #764ba2)'
+    background:
+      user.value.avatarColor || "linear-gradient(135deg, #667eea, #764ba2)",
   };
 });
 
 const stats = ref({
   published: 0,
   views: 0,
-  likes: 0
+  likes: 0,
 });
 
 // 格式化数字显示
 const formatNumber = (num) => {
   if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M';
+    return (num / 1000000).toFixed(1) + "M";
   }
   if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
+    return (num / 1000).toFixed(1) + "k";
   }
   return num.toString();
 };
 
 // 获取统计数据
 const loadStatsData = () => {
-  const statsData = localStorage.getItem('userStats');
+  const statsData = localStorage.getItem("userStats");
   if (statsData) {
     try {
       const parsed = JSON.parse(statsData);
       stats.value = {
         published: parsed.published || 0,
         views: parsed.views || 0,
-        likes: parsed.likes || 0
+        likes: parsed.likes || 0,
       };
     } catch (e) {
-      console.error('解析统计数据失败:', e);
+      console.error("解析统计数据失败:", e);
       // 保持默认值 0
     }
   } else {
@@ -156,7 +156,7 @@ const loadStatsData = () => {
     stats.value = {
       published: 0,
       views: 0,
-      likes: 0
+      likes: 0,
     };
   }
 };
@@ -166,9 +166,9 @@ const updateStats = (newStats) => {
   stats.value = {
     published: newStats.published || stats.value.published,
     views: newStats.views || stats.value.views,
-    likes: newStats.likes || stats.value.likes
+    likes: newStats.likes || stats.value.likes,
   };
-  localStorage.setItem('userStats', JSON.stringify(stats.value));
+  localStorage.setItem("userStats", JSON.stringify(stats.value));
 };
 
 // 将用户信息合并到 localStorage.user
@@ -177,9 +177,9 @@ const updateLocalStorage = (newData) => {
     const safe = { ...newData };
     // 不要在本地存储敏感信息，比如密码
     if (safe.password !== undefined) delete safe.password;
-    localStorage.setItem('user', JSON.stringify(safe));
+    localStorage.setItem("user", JSON.stringify(safe));
   } catch (e) {
-    console.warn('更新本地用户缓存失败:', e);
+    console.warn("更新本地用户缓存失败:", e);
   }
 };
 
@@ -189,94 +189,94 @@ onMounted(() => {
 });
 
 const loadUserData = async () => {
-  const userData = localStorage.getItem('user');
+  const userData = localStorage.getItem("user");
   if (userData) {
     try {
       const parsed = JSON.parse(userData);
       // 先使用本地数据快速渲染
       user.value = {
-        id: parsed.id || '',
-        name: parsed.name?.trim() || '未命名用户',
-        email: parsed.email?.trim() || '',
-        password : parsed.password || '',
+        id: parsed.id || "",
+        name: parsed.name?.trim() || "未命名用户",
+        email: parsed.email?.trim() || "",
+        password: parsed.password || "",
       };
 
       // 异步请求后端获取实时用户信息并更新（若接口可用）
-        try {
-          const remote = await getUserInfo(user.value.id);
-          // getUserInfo 已尽可能返回后端 data 对象；若返回带 {code,data} 格式，兼容处理
-          const remoteData = (remote && remote.status === 200 && remote.data) ? remote.data : remote;
-          console.log(remote && remote.status === 200 && remote.data);
-          console.log(remoteData);
-          console.log(remoteData.data);
-          
-          if (remoteData) {
-            const userInfo = remoteData.data || remoteData;
-            const mappedData = {
-              id: userInfo.id || user.value.id,
-              name: userInfo.name.trim() || user.value.name,
-              email: (userInfo.email ?? '').trim() || user.value.email,
-              password : userInfo.password || user.value.password,
-            };
+      try {
+        const remote = await getUserInfo();
 
-            user.value = mappedData;
+        // 情况1：拦截器只返回 response.data（即 {code, data, msg}）
+        // 情况2：拦截器进一步解包，直接返回 data 内容
 
-            // 同步到本地存储（会排除敏感字段）
-            updateLocalStorage(mappedData);
-          } else {
-            console.warn('接口返回空数据或格式不匹配:', remote);
-          }
-        } catch (error) {
-          console.warn('获取远程用户信息失败:', error);
-          // 保留本地数据，不做更改
+        // 统一处理：优先取 remote.data，如果已经是纯数据则直接用
+        const userInfo = remote?.data ?? remote;
+
+        console.log("原始响应:", remote);
+        console.log("提取数据:", userInfo);
+
+        if (userInfo) {
+          const mappedData = {
+            id: userInfo.id || user.value.id,
+            name: userInfo.name?.trim() || user.value.name,
+            email: (userInfo.email ?? "").trim() || user.value.email,
+            password: userInfo.password || user.value.password,
+          };
+          user.value = mappedData;
+          // 同步到本地存储（会排除敏感字段）
+          updateLocalStorage(mappedData);
+        } else {
+          console.warn("接口返回空数据或格式不匹配:", remote);
         }
-      
+      } catch (error) {
+        console.warn("获取远程用户信息失败:", error);
+        // 保留本地数据，不做更改
+      }
     } catch (e) {
-      console.error('解析用户数据失败:', e);
+      console.error("解析用户数据失败:", e);
       // 解析失败时使用默认值
       user.value = {
-        id: '',
-        name: '未命名用户',
-        email: '',
-        avatarUrl: '',
-        avatarColor: '',
-        bio: ''
+        id: "",
+        name: "未命名用户",
+        email: "",
+        avatarUrl: "",
+        avatarColor: "",
+        bio: "",
       };
     }
   } else {
     // 没有用户数据时使用默认值
     user.value = {
-      id: '',
-      name: '未命名用户',
-      email: '',
-      avatarUrl: '',
-      avatarColor: '',
-      bio: ''
+      id: "",
+      name: "未命名用户",
+      email: "",
+      avatarUrl: "",
+      avatarColor: "",
+      bio: "",
     };
   }
 };
 
 const goToHome = () => {
-  router.push('/index');
+  router.push("/index");
 };
 
 const goToEdit = () => {
-  router.push('/profile/edit');
+  router.push("/profile/edit");
 };
 
 const goToSettings = () => {
-  router.push('/settings');
+  router.push("/settings");
 };
 
 const goToAbout = () => {
-  router.push('/about');
+  router.push("/about");
 };
 
 const handleLogout = () => {
-  if (confirm('确定要退出登录吗？')) {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    router.push('/login');
+  if (confirm("确定要退出登录吗？")) {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    router.push("/login");
   }
 };
 </script>

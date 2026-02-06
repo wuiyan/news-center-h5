@@ -16,15 +16,36 @@
 
         <div class="form-section">
           <div class="avatar-upload">
-            <div class="avatar-preview" :style="form.avatar ? { backgroundImage: `url(${form.avatar})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }">
-              {{ form.name?.charAt(0) || '👤' }}
+            <div
+              class="avatar-preview"
+              :style="
+                form.avatar
+                  ? {
+                      backgroundImage: `url(${form.avatar})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }
+                  : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }
+              "
+            >
+              {{ form.name?.charAt(0) || "👤" }}
             </div>
             <div class="upload-btn-wrapper">
-              <button type="button" class="upload-btn" @click="triggerFileInput">
+              <button
+                type="button"
+                class="upload-btn"
+                @click="triggerFileInput"
+              >
                 <span class="upload-icon">📷</span>
                 选择图片
               </button>
-              <input ref="fileInput" type="file" accept="image/*" @change="handleFileChange" hidden />
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                @change="handleFileChange"
+                hidden
+              />
             </div>
           </div>
 
@@ -57,11 +78,18 @@
               :class="{ error: errors.email }"
               @input="validateField('email')"
             />
-            <span v-if="errors.email" class="error-msg">{{ errors.email }}</span>
+            <span v-if="errors.email" class="error-msg">{{
+              errors.email
+            }}</span>
           </div>
 
-          <button type="button" class="save-btn" @click="handleSave" :disabled="isSaving">
-            {{ isSaving ? '保存中...' : '保存更改' }}
+          <button
+            type="button"
+            class="save-btn"
+            @click="handleSave"
+            :disabled="isSaving"
+          >
+            {{ isSaving ? "保存中..." : "保存更改" }}
           </button>
         </div>
       </div>
@@ -133,18 +161,18 @@ const validateField = (field) => {
     errors.value.name = '';
   }
 
-  if (field === 'email') {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!form.value.email.trim()) {
-      errors.value.email = '邮箱不能为空';
-      return false;
-    }
-    if (!emailRegex.test(form.value.email)) {
-      errors.value.email = '请输入有效的邮箱地址';
-      return false;
-    }
-    errors.value.email = '';
-  }
+  // if (field === 'email') {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!form.value.email.trim()) {
+  //     errors.value.email = '邮箱不能为空';
+  //     return false;
+  //   }
+  //   if (!emailRegex.test(form.value.email)) {
+  //     errors.value.email = '请输入有效的邮箱地址';
+  //     return false;
+  //   }
+  //   errors.value.email = '';
+  // }
 
   return true;
 };
@@ -198,42 +226,66 @@ const handleSave = async () => {
       avatar: form.value.avatar || undefined
     };
 
-
     const res = await updateUser(payload);
-    const body = res?.data ?? res;
 
-    if (res?.status === 200 || body?.code === 200) {
-      const returned = body?.data ?? body;
+    // 统一提取数据和判断成功
+    let returned = null;
+    let isSuccess = false;
+    let errorMsg = '保存失败，请重试';
 
-      // 合并到本地缓存
-      const raw = localStorage.getItem('user');
-      let localObj = {};
-      if (raw) {
-        try { localObj = JSON.parse(raw); } catch (_) { localObj = typeof raw === 'string' ? { id: raw } : {}; }
-      }
-
-      const updatedFields = {
-        ...(payload.name !== undefined && { name: payload.name }),
-        ...(payload.email !== undefined && { email: payload.email }),
-        ...(payload.avatar !== undefined && { avatar: payload.avatar })
-      };
-
-      // Prefer server-returned values when present
-      if (returned) {
-        if (returned.name !== undefined) updatedFields.name = returned.name;
-        if (returned.email !== undefined) updatedFields.email = returned.email;
-        if (returned.avatar !== undefined) updatedFields.avatar = returned.avatar;
-      }
-
-      const merged = { ...localObj, id: payload.id ?? localObj.id, ...updatedFields };
-
-      localStorage.setItem('user', JSON.stringify(merged));
-
-      showToast('保存成功');
-      router.push('/profile');
+    if (res?.code === 200) {
+      // 标准格式 {code, data, msg}
+      returned = res.data;
+      isSuccess = true;
+    } else if (res && !res.code) {
+      // 纯数据格式（拦截器彻底解包）
+      returned = res;
+      isSuccess = true;
     } else {
-      showToast(body?.msg || '保存失败，请重试');
+      // 失败情况
+      errorMsg = res?.msg || '保存失败，请重试';
     }
+
+    if (!isSuccess || !returned) {
+      showToast(errorMsg);
+      return;  // 失败直接返回，不执行后续
+    }
+
+    console.log('返回数据:', returned);
+
+    // 合并到本地缓存（只有成功才执行到这里）
+    const raw = localStorage.getItem('user');
+    let localObj = {};
+    if (raw) {
+      try { 
+        localObj = JSON.parse(raw); 
+      } catch (_) { 
+        localObj = typeof raw === 'string' ? { id: raw } : {}; 
+      }
+    }
+
+    const updatedFields = {
+      ...(payload.name !== undefined && { name: payload.name }),
+      ...(payload.email !== undefined && { email: payload.email }),
+      ...(payload.avatar !== undefined && { avatar: payload.avatar })
+    };
+
+    // 优先使用服务器返回的值
+    if (returned.name !== undefined) updatedFields.name = returned.name;
+    if (returned.email !== undefined) updatedFields.email = returned.email;
+    if (returned.avatar !== undefined) updatedFields.avatar = returned.avatar;
+
+    const merged = { 
+      ...localObj, 
+      id: payload.id ?? localObj.id, 
+      ...updatedFields 
+    };
+
+    localStorage.setItem('user', JSON.stringify(merged));
+
+    showToast('保存成功');
+    router.push('/profile');
+
   } catch (e) {
     console.error('保存失败:', e);
     showToast('保存失败，请重试');
@@ -254,7 +306,8 @@ const handleSave = async () => {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background-size: cover;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   padding-bottom: 20px;
 }
 
@@ -273,9 +326,7 @@ const handleSave = async () => {
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-radius: 18px;
   padding: 28px 20px 36px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 8px;
 }
@@ -304,7 +355,7 @@ const handleSave = async () => {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .back-btn {
@@ -472,15 +523,13 @@ const handleSave = async () => {
 .custom-input:focus {
   background: #fff;
   border-color: #667eea;
-  box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.08),
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08),
     0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .custom-input.error {
   border-color: #ff6b6b;
-  box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05),
     0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 
@@ -492,8 +541,6 @@ const handleSave = async () => {
   color: #ff6b6b;
   font-weight: 500;
 }
-
-
 
 .save-btn {
   width: 100%;
