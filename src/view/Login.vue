@@ -14,37 +14,45 @@ const showPassword = ref(false)
 const rememberMe = ref(false)
 const isLoading = ref(false)
 
-function login() {
-  // 在这里添加登录逻辑，例如表单验证和发送请求
-  request.post("/user/login", {
+async function login() {
+  try {
+    // 发送登录请求
+    const response = await request.post("/user/login", {
       email: username.value,
       password: password.value,
-    })
-    .then((response) => {
-      console.log(response);
-      
-      if (response.code == 200) {
-          // 登录成功，保存用户信息到 localStorage
-          localStorage.setItem("token", response.data);
-          const userInfo = await getUserInfo();
-          if(userInfo.code != 200){
-              showFailToast("获取用户信息失败，请稍后再试。");
-              return;
-          }
-          localStorage.setItem("user", JSON.stringify(userInfo.data));
-          
-          showSuccessToast("登录成功!");
-          // 登录成功后可以跳转到主页或其他页面
-          router.push("/index");
-      }else{
-          showFailToast(response.msg || "登录失败，请检查用户名和密码。");
-          return;
-      } 
-    })
-    .catch((error) => {
-      console.error("登录失败:", error);
-      showFailToast("登录失败，请稍后再试。");
     });
+
+    console.log(response);
+
+    // 登录失败
+    if (response.code !== 200) {
+      showFailToast(response.msg || "登录失败，请检查用户名和密码。");
+      return;
+    }
+
+    // 登录成功，保存 token
+    localStorage.setItem("token", response.data);
+
+    // 获取用户信息
+    const userInfo = await getUserInfo();
+
+    if (userInfo.code !== 200) {
+      showFailToast("获取用户信息失败，请稍后再试。");
+      return;
+    }
+
+    // 保存用户信息
+    localStorage.setItem("user", JSON.stringify(userInfo.data));
+
+    showSuccessToast("登录成功!");
+    
+    // 跳转到首页
+    router.push("/index");
+
+  } catch (error) {
+    console.error("登录失败:", error);
+    showFailToast("登录失败，请稍后再试。");
+  }
 }
 </script>
 
