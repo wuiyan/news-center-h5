@@ -63,7 +63,7 @@
 
           <div class="divider"></div>
 
-          <div class="menu-card">
+          <div class="menu-card logout-card">
             <div class="menu-item" @click="goToAbout">
               <span class="menu-icon">📝</span>
               <span class="menu-label">关于</span>
@@ -101,7 +101,7 @@ import { getUserInfo } from "../api/user.js";
 const router = useRouter();
 
 const user = ref({
-  id: 5,
+  id: null,
   name: "",
   email: "",
   password: "",
@@ -497,6 +497,11 @@ const handleLogout = () => {
 
 .settings-card {
   margin-bottom: 12px;
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
+}
+
+.logout-card {
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s backwards;
 }
 
 .menu-item {
