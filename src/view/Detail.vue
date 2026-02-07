@@ -315,7 +315,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { showToast, showImagePreview } from "vant";
 import { getNewsDetail, likeNews } from "../api/news";
@@ -335,6 +335,7 @@ const detail = ref({
   views: "12.5k",
   comments: 328,
   likes: "1.2k",
+  isLiked: false,
   publishTime: "2小时前",
   cover:
     "https://picsum.photos/800/400?random=1;https://picsum.photos/800/400?random=2;https://picsum.photos/800/400?random=3",
@@ -429,11 +430,19 @@ const previewImage = (index) => {
 };
 
 // 互动状态
-const hasLiked = ref(false);
-const hasCollected = ref(false);
+const hasLiked = ref(detail.value.isLiked || false);
 const likeCount = ref(parseFloat(detail.value.likes) || 0);
+const hasCollected = ref(false);
 const likeAnimating = ref(false);
 const collectAnimating = ref(false);
+
+
+watch(() => detail.value, (newDetail) => {
+  if (newDetail) {
+    hasLiked.value = newDetail.isLiked || false;
+    likeCount.value = parseFloat(newDetail.likes) || 0;
+  }
+}, { immediate: true, deep: true });
 
 const toggleLike = async () => {
   likeAnimating.value = true;
