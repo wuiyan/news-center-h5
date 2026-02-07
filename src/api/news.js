@@ -11,3 +11,12 @@ export function getNewsList() {
     return request.get('/news/list');
 }
 
+// 获取信息详情
+export function getNewsDetail(id) {
+    return request.get(`/news/detail/${id}`);
+}
+
+// 点赞信息
+export function likeNews(id) {
+    return request.post(`/news/like/${id}`);
+}

@@ -39,12 +39,12 @@
     <!-- 内容流区域 -->
     <div class="content-flow">
       <!-- Vant 全屏加载 -->
-    <van-overlay :show="isLoading" class-name="loading-overlay">
-      <div class="loading-wrapper">
-        <van-loading type="spinner" color="#1989fa" size="40px" />
-        <span class="loading-text">加载中...</span>
-      </div>
-    </van-overlay>
+      <van-overlay :show="isLoading" class-name="loading-overlay">
+        <div class="loading-wrapper">
+          <van-loading type="spinner" color="#1989fa" size="40px" />
+          <span class="loading-text">加载中...</span>
+        </div>
+      </van-overlay>
       <div class="content-container">
         <div class="waterfall-wrapper">
           <!-- 左列 -->
@@ -298,7 +298,7 @@ infoItems.value = [
     likes: "1.2k",
     publishTime: "2小时前",
     cover: "",
-  }
+  },
 ];
 
 // 挂载时获取信息列表
@@ -373,6 +373,10 @@ const filterByCategory = (categoryId) => {
 const openDetail = (item) => {
   console.log("打开详情:", item);
   // 这里可以添加跳转逻辑或弹窗逻辑
+  router.push({
+    path: "/detail",
+    query: { id: item.id },
+  });
 };
 
 // 获取分类名称
