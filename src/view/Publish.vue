@@ -455,7 +455,7 @@ const handlePublish = async () => {
       content: formData.value.content.trim(),
       summary: formData.value.summary.trim(),
       category: formData.value.category,
-      cover: serverImageUrls
+      cover: serverImageUrls.join(',')
     };
 
     console.log('发布数据:', publishData);
