@@ -20,3 +20,8 @@ export function getNewsDetail(id) {
 export function likeNews(id) {
     return request.post(`/news/like/${id}`);
 }
+
+// 收藏信息
+export function collectNews(id) {
+    return request.post(`/news/collect/${id}`);
+}

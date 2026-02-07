@@ -318,7 +318,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { showToast, showImagePreview } from "vant";
-import { getNewsDetail, likeNews } from "../api/news";
+import { getNewsDetail, likeNews, collectNews } from "../api/news";
 
 const router = useRouter();
 const route = useRoute();
@@ -334,8 +334,9 @@ const detail = ref({
     "经过数月的研发，新一代大语言模型正式发布。该模型在自然语言理解、代码生成、多模态处理等方面都有显著提升。<br><br>研究团队表示，新模型采用了创新的架构设计，训练数据规模扩大了3倍，同时在安全性方面进行了深度优化。<br><br>【技术亮点】<br>1. 多模态理解能力大幅提升<br>2. 代码生成准确率提高40%<br>3. 推理速度提升2倍<br><br>这一突破将为各行业带来深远影响...",
   views: "12.5k",
   comments: 328,
-  likes: "1.2k",
+  likes: 0,
   isLiked: false,
+  isCollected: false,
   publishTime: "2小时前",
   cover:
     "https://picsum.photos/800/400?random=1;https://picsum.photos/800/400?random=2;https://picsum.photos/800/400?random=3",
@@ -430,18 +431,20 @@ const previewImage = (index) => {
 };
 
 // 互动状态
-const hasLiked = ref(detail.value.isLiked || false);
-const likeCount = ref(parseFloat(detail.value.likes) || 0);
+const hasLiked = ref(false);
+const likeCount = ref(0);
 const hasCollected = ref(false);
 const likeAnimating = ref(false);
 const collectAnimating = ref(false);
 
 
 watch(() => detail.value, (newDetail) => {
-  if (newDetail) {
-    hasLiked.value = newDetail.isLiked || false;
-    likeCount.value = parseFloat(newDetail.likes) || 0;
-  }
+  if (!newDetail) return;
+  
+  hasLiked.value = newDetail.isLiked || false;
+  likeCount.value = parseFloat(newDetail.likes) || 0;
+  hasCollected.value = newDetail.isCollected || false;  // ← 同步收藏状态
+  
 }, { immediate: true, deep: true });
 
 const toggleLike = async () => {
@@ -461,9 +464,13 @@ const toggleLike = async () => {
   }
 };
 
-const toggleCollect = () => {
+const toggleCollect = async () => {
   collectAnimating.value = true;
   setTimeout(() => (collectAnimating.value = false), 300);
+  
+  const collectStatus = await collectNews(detail.value.id);
+  console.log(collectStatus);
+
   hasCollected.value = !hasCollected.value;
   showToast(hasCollected.value ? "收藏成功" : "已取消收藏");
 };
