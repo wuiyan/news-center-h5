@@ -406,31 +406,22 @@ const getCategoryColor = (categoryId) => {
   return colorMap[categoryId] || "linear-gradient(135deg, #667eea, #764ba2)";
 };
 
-// 获取封面图片 - 从cover中提取第一张图片
+// 获取封面图片 - 从cover字符串中提取第一张图片
 const getCoverImage = (item) => {
   if (!item.cover) return null;
   
   let coverUrl = '';
   
-  // 处理cover可能是数组的情况
-  if (Array.isArray(item.cover)) {
-    if (item.cover.length === 0) return null;
-    coverUrl = item.cover[0];
-  } 
-  // 处理cover是字符串的情况
-  else if (typeof item.cover === 'string') {
-    // 如果是JSON字符串数组，先解析
-    if (item.cover.startsWith('[')) {
-      try {
-        const coverArray = JSON.parse(item.cover);
-        if (coverArray.length === 0) return null;
-        coverUrl = coverArray[0];
-      } catch (e) {
-        coverUrl = item.cover;
-      }
-    } else {
-      coverUrl = item.cover;
-    }
+  // 处理cover是字符串的情况（逗号分隔）
+  if (typeof item.cover === 'string') {
+    // 去除首尾空格，按逗号分割，过滤空值
+    const coverArray = item.cover
+      .split(',')
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
+    
+    if (coverArray.length === 0) return null;
+    coverUrl = coverArray[0];
   } else {
     return null;
   }
