@@ -58,6 +58,16 @@
                 @click="openDetail(item)"
               >
                 <div class="info-card">
+                  <!-- 封面图片 -->
+                  <div v-if="getCoverImage(item)" class="card-cover">
+                    <img 
+                      :src="getCoverImage(item)" 
+                      :alt="item.title"
+                      class="cover-image"
+                      @error="handleImageError"
+                    />
+                  </div>
+                  
                   <div class="card-content">
                     <!-- 分类标签胶囊 -->
                     <div
@@ -119,6 +129,16 @@
                 @click="openDetail(item)"
               >
                 <div class="info-card focus-card">
+                  <!-- 焦点卡片封面图 -->
+                  <div v-if="getCoverImage(item)" class="card-cover focus-cover">
+                    <img 
+                      :src="getCoverImage(item)" 
+                      :alt="item.title"
+                      class="cover-image"
+                      @error="handleImageError"
+                    />
+                  </div>
+                  
                   <div class="card-content">
                     <div class="focus-badge">🔥 焦点资讯</div>
                     <div
@@ -178,6 +198,16 @@
               @click="openDetail(item)"
             >
               <div class="info-card">
+                <!-- 封面图片 -->
+                <div v-if="getCoverImage(item)" class="card-cover">
+                  <img 
+                    :src="getCoverImage(item)" 
+                    :alt="item.title"
+                    class="cover-image"
+                    @error="handleImageError"
+                  />
+                </div>
+                
                 <div class="card-content">
                   <div
                     class="card-category"
@@ -239,7 +269,10 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getNewsList, getNewsCategories, searchNews } from "../api/news.js";
 import { onMounted } from "vue";
-import BottomTabBar from "../components/BottomTabBar.vue"; // 引入组件
+import BottomTabBar from "../components/BottomTabBar.vue";
+
+// 引入环境变量中的API基础地址
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const router = useRouter();
 
@@ -267,24 +300,6 @@ const searchQuery = ref("");
 
 // 获取信息列表
 const infoItems = ref([]);
-
-// 模拟信息数据
-infoItems.value = [
-  {
-    id: 1,
-    category: "tech",
-    title: "AI技术突破：新一代大语言模型发布",
-    summary:
-      "最新的AI模型在多项基准测试中刷新记录，展现出更强的理解和生成能力...",
-    content:
-      "经过数月的研发，新一代大语言模型正式发布。该模型在自然语言理解、代码生成、多模态处理等方面都有显著提升。",
-    views: "12.5k",
-    comments: "328",
-    likes: "1.2k",
-    publishTime: "2小时前",
-    cover: "",
-  },
-];
 
 // 挂载时获取信息列表
 onMounted(() => {
@@ -317,7 +332,6 @@ const loadNewsList = async () => {
 
 // 执行搜索（回车触发）
 const handleSearch = async () => {
-  // 空搜索获取全部数据
   const keyword = searchQuery.value.trim();
   isLoading.value = true;
   
@@ -334,7 +348,7 @@ const handleSearch = async () => {
 // 清空搜索
 const clearSearch = () => {
   searchQuery.value = '';
-  loadNewsList(); // 清空后重新获取全部数据
+  loadNewsList();
 };
 
 // 过滤后的信息列表（分类）
@@ -355,7 +369,6 @@ const leftColumnItems = computed(() => {
 });
 
 const rightColumnItems = computed(() => {
-  // 右列过滤掉焦点卡片
   return filteredItems.value.filter(
     (item, index) => index % 2 === 1 && !item.isFocus
   );
@@ -369,7 +382,6 @@ const filterByCategory = (categoryId) => {
 // 打开详情
 const openDetail = (item) => {
   console.log("打开详情:", item);
-  // 这里可以添加跳转逻辑或弹窗逻辑
   router.push({
     path: "/detail",
     query: { id: item.id },
@@ -394,10 +406,92 @@ const getCategoryColor = (categoryId) => {
   return colorMap[categoryId] || "linear-gradient(135deg, #667eea, #764ba2)";
 };
 
+// 获取封面图片 - 从cover中提取第一张图片
+const getCoverImage = (item) => {
+  if (!item.cover) return null;
+  
+  let coverUrl = '';
+  
+  // 处理cover可能是数组的情况
+  if (Array.isArray(item.cover)) {
+    if (item.cover.length === 0) return null;
+    coverUrl = item.cover[0];
+  } 
+  // 处理cover是字符串的情况
+  else if (typeof item.cover === 'string') {
+    // 如果是JSON字符串数组，先解析
+    if (item.cover.startsWith('[')) {
+      try {
+        const coverArray = JSON.parse(item.cover);
+        if (coverArray.length === 0) return null;
+        coverUrl = coverArray[0];
+      } catch (e) {
+        coverUrl = item.cover;
+      }
+    } else {
+      coverUrl = item.cover;
+    }
+  } else {
+    return null;
+  }
+  
+  // 如果没有URL，返回null
+  if (!coverUrl) return null;
+  
+  // 如果已经是完整URL，直接返回
+  if (coverUrl.startsWith('http://') || coverUrl.startsWith('https://')) {
+    return coverUrl;
+  }
+  
+  // 拼接基础URL
+  const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const path = coverUrl.startsWith('/') ? coverUrl : `/${coverUrl}`;
+  
+  return `${baseUrl}${path}`;
+};
+
+// 图片加载失败处理
+const handleImageError = (e) => {
+  // 可以设置一个默认图片
+  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3E暂无图片%3C/text%3E%3C/svg%3E';
+  e.target.style.objectFit = 'contain';
+};
+
 const goToProfile = () => {
   router.push("/profile");
 };
 </script>
+
+<style scoped>
+/* 封面图片样式 */
+.card-cover {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: #f5f5f5;
+}
+
+.focus-cover {
+  height: 220px;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.info-card:hover .cover-image {
+  transform: scale(1.05);
+}
+
+/* 调整卡片内容的边距 */
+.card-cover + .card-content {
+  padding-top: 12px;
+}
+</style>
 
 <style scoped>
 * {

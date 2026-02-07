@@ -39,7 +39,6 @@
           <span class="input-count">{{ formData.title.length }}/50</span>
         </div>
       </div>
-      
       <!-- 图片上传区 -->
       <div class="section-block image-section">
         <div class="section-title">
@@ -49,25 +48,15 @@
         </div>
 
         <div class="image-grid">
-          <!-- 已上传图片 - 使用本地预览URL -->
+          <!-- 已上传图片 -->
           <div
             v-for="(img, index) in imageList"
             :key="index"
             class="image-item"
-            :style="{ backgroundImage: `url(${img.previewUrl})` }"
+            :style="{ backgroundImage: `url(${img})` }"
           >
             <div class="image-overlay">
               <span class="delete-btn" @click.stop="removeImage(index)">✕</span>
-              <!-- 显示上传状态 -->
-              <div v-if="img.uploading" class="upload-status">
-                <van-loading type="spinner" color="#fff" size="20px" />
-              </div>
-              <div v-else-if="img.uploadError" class="upload-status error">
-                <span>❌</span>
-              </div>
-              <div v-else-if="img.serverUrl" class="upload-status success">
-                <span>✓</span>
-              </div>
             </div>
           </div>
 
@@ -253,18 +242,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, reactive } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import { showToast, showFailToast } from "vant";
-import { publishNews } from "../api/news.js";
-import { uploadImage } from "../api/tools";
+import { showToast } from "vant";
 
 const router = useRouter();
 
-// API基础URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-
-// 分类数据
+// 分类数据（与首页保持一致）
 const categories = [
   { id: "tech", name: "科技", icon: "💻" },
   { id: "finance", name: "财经", icon: "💰" },
@@ -279,10 +263,9 @@ const formData = ref({
   content: "",
   summary: "",
   category: "",
-  cover: ""
 });
 
-// 图片列表 - 使用普通对象，不嵌套ref
+// 图片列表
 const imageList = ref([]);
 const fileInput = ref(null);
 const isUploading = ref(false);
@@ -299,19 +282,15 @@ const contentLength = computed(() => {
 });
 
 const canPublish = computed(() => {
-  // 检查是否有图片正在上传
-  const hasUploadingImages = imageList.value.some(img => img.uploading);
-  
   return (
     formData.value.title.trim() &&
     formData.value.content.trim() &&
     formData.value.category &&
-    formData.value.summary.trim() &&
-    !hasUploadingImages // 确保没有图片正在上传
+    formData.value.summary.trim()
   );
 });
 
-// 获取分类颜色
+// 获取分类颜色（与首页保持一致）
 const getCategoryColor = (categoryId) => {
   const colorMap = {
     tech: "linear-gradient(135deg, #667eea, #764ba2)",
@@ -335,84 +314,34 @@ const triggerUpload = () => {
   }
 };
 
-// 处理文件选择 - 立即显示本地预览，后台上传
-const handleFileChange = async (e) => {
+// 处理文件选择
+const handleFileChange = (e) => {
   const files = Array.from(e.target.files);
   const remainingSlots = 6 - imageList.value.length;
   const validFiles = files.slice(0, remainingSlots);
-  
+
   if (files.length > remainingSlots) {
     showToast(`最多只能上传6张图片，已自动筛选前${remainingSlots}张`);
   }
 
-  if (validFiles.length === 0) return;
+  isUploading.value = true;
 
-  // 立即创建本地预览
-  validFiles.forEach((file, idx) => {
-    // 创建本地预览URL
-    const previewUrl = URL.createObjectURL(file);
-    
-    // 添加到图片列表（立即显示）- 使用reactive对象
-    const imageItem = reactive({
-      file: file,
-      previewUrl: previewUrl,
-      serverUrl: null,
-      uploading: true,
-      uploadError: false
+  // 模拟上传过程
+  setTimeout(() => {
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imageList.value.push(e.target.result);
+      };
+      reader.readAsDataURL(file);
     });
-    
-    imageList.value.push(imageItem);
-    
-    // 异步上传到服务器
-    uploadToServer(imageItem);
-  });
-  
-  showToast(`已添加 ${validFiles.length} 张图片`);
-  
-  // 清空input
-  if (fileInput.value) {
-    fileInput.value.value = '';
-  }
-};
-
-// 上传到服务器 - 直接修改reactive对象
-const uploadToServer = async (imageItem) => {
-  try {
-    const response = await uploadImage(imageItem.file);
-    
-    if (response.code == 200 || response.success) {
-      // 提取服务器返回的图片路径
-      let serverUrl = response.data;
-     
-      if (serverUrl) {
-        // 直接修改reactive对象的属性
-        imageItem.serverUrl = serverUrl;
-        imageItem.uploading = false;
-        imageItem.uploadError = false;
-        console.log('上传成功:', serverUrl);
-      } else {
-        throw new Error('服务器未返回图片URL');
-      }
-    } else {
-      throw new Error(response.msg || response.message || '上传失败');
-    }
-  } catch (error) {
-    console.error('图片上传失败:', error);
-    imageItem.uploading = false;
-    imageItem.uploadError = true;
-    showFailToast('图片上传失败，请删除后重试');
-  }
+    isUploading.value = false;
+    fileInput.value.value = "";
+  }, 800);
 };
 
 // 删除图片
 const removeImage = (index) => {
-  const image = imageList.value[index];
-  
-  // 释放本地预览URL
-  if (image.previewUrl && image.previewUrl.startsWith('blob:')) {
-    URL.revokeObjectURL(image.previewUrl);
-  }
-  
   imageList.value.splice(index, 1);
   showToast("已删除");
 };
@@ -425,88 +354,35 @@ const selectCategory = (category) => {
 
 // 发布资讯
 const handlePublish = async () => {
-  if (!canPublish.value) {
-    showToast('请填写完整信息或等待图片上传完成');
-    return;
-  }
-  
-  // 检查是否有上传失败的图片
-  const hasFailedImages = imageList.value.some(img => img.uploadError);
-  if (hasFailedImages) {
-    showFailToast('存在上传失败的图片，请删除后重试');
-    return;
-  }
-  
+  if (!canPublish.value) return;
+
   isPublishing.value = true;
-  
-  try {
-    // 提取所有成功上传的图片服务器路径
-    const serverImageUrls = imageList.value
-      .filter(img => img.serverUrl)
-      .map(img => img.serverUrl);
-    
-    if (serverImageUrls.length === 0 && imageList.value.length > 0) {
-      throw new Error('图片未上传完成，请稍后再试');
-    }
-    
-    // 构建发布数据
-    const publishData = {
-      title: formData.value.title.trim(),
-      content: formData.value.content.trim(),
-      summary: formData.value.summary.trim(),
+
+  // 模拟发布请求
+  setTimeout(() => {
+    const newPost = {
+      id: Date.now(),
       category: formData.value.category,
-      cover: serverImageUrls
+      title: formData.value.title,
+      summary: formData.value.summary,
+      content: formData.value.content,
+      views: "0",
+      comments: "0",
+      likes: "0",
+      publishTime: "刚刚",
+      cover: imageList.value[0] || "",
+      images: imageList.value,
     };
 
-    console.log('发布数据:', publishData);
+    console.log("发布成功:", newPost);
+    showToast("发布成功！");
 
-    // 调用API
-    const response = await publishNews(publishData);
-    
-    if (response.code === 200 || response.success || response.data) {
-      showToast('发布成功！');
-      
-      // 清理本地预览URL
-      imageList.value.forEach(img => {
-        if (img.previewUrl && img.previewUrl.startsWith('blob:')) {
-          URL.revokeObjectURL(img.previewUrl);
-        }
-      });
-      
-      // 清空表单
-      formData.value = {
-        title: '',
-        content: '',
-        summary: '',
-        category: '',
-        cover: ''
-      };
-      imageList.value = [];
-      
-      // 延迟跳转
-      setTimeout(() => {
-        isPublishing.value = false;
-        router.push('/index');
-      }, 800);
-    } else {
-      throw new Error(response.msg || response.message || '发布失败');
-    }
-    
-  } catch (error) {
-    console.error('发布失败:', error);
-    showFailToast(error.message || '发布失败，请重试');
-    isPublishing.value = false;
-  }
+    setTimeout(() => {
+      isPublishing.value = false;
+      router.push("/");
+    }, 500);
+  }, 1500);
 };
-
-// 组件卸载时清理所有本地预览URL
-onBeforeUnmount(() => {
-  imageList.value.forEach(img => {
-    if (img.previewUrl && img.previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(img.previewUrl);
-    }
-  });
-});
 </script>
 
 <style scoped>

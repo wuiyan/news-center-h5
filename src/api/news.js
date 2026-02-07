@@ -30,3 +30,8 @@ export function likeNews(id) {
 export function collectNews(id) {
     return request.post(`/news/collect/${id}`);
 }
+
+// 发布信息
+export function publishNews(data) {
+    return request.post('/news/publish', data);
+}
