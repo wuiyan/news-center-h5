@@ -45,7 +45,7 @@
           <div class="meta-info">
             <span class="publish-time">{{ detail.publishTime }}</span>
             <span class="dot-separator">·</span>
-            <span class="view-count">{{ detail.views }} 阅读</span>
+            <span class="view-count">{{ detail.viewCount }} 阅读</span>
           </div>
         </div>
 

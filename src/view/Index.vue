@@ -4,14 +4,15 @@
     <div class="nav-header">
       <!-- 搜索栏 -->
       <div class="search-wrapper">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon" @click="handleSearch">🔍</span>
         <input
           type="text"
           v-model="searchQuery"
           placeholder="搜索资讯内容..."
           class="search-input"
+          @keyup.enter="handleSearch"
         />
-        <span v-if="searchQuery" class="clear-icon" @click="searchQuery = ''"
+        <span v-if="searchQuery" class="clear-icon" @click="clearSearch"
           >✕</span
         >
       </div>
@@ -253,7 +254,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import { getNewsList, getNewsCategories } from "../api/news.js";
+import { getNewsList, getNewsCategories, searchNews } from "../api/news.js";
 import { onMounted } from "vue";
 
 const router = useRouter();
@@ -330,23 +331,35 @@ const loadNewsList = async () => {
   }
 };
 
-// 过滤后的信息列表（分类 + 搜索）
+// 执行搜索（回车触发）
+const handleSearch = async () => {
+  // 空搜索获取全部数据
+  const keyword = searchQuery.value.trim();
+  isLoading.value = true;
+  
+  try {
+    const response = await searchNews(keyword);
+    infoItems.value = response.data.list || [];
+  } catch (err) {
+    console.error('搜索失败:', err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// 清空搜索
+const clearSearch = () => {
+  searchQuery.value = '';
+  loadNewsList(); // 清空后重新获取全部数据
+};
+
+// 过滤后的信息列表（分类）
 const filteredItems = computed(() => {
   let items = infoItems.value;
 
   // 按分类过滤
   if (activeCategory.value !== "all") {
     items = items.filter((item) => item.category === activeCategory.value);
-  }
-
-  // 按搜索关键词过滤
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase();
-    items = items.filter(
-      (item) =>
-        item.title.toLowerCase().includes(query) ||
-        item.summary.toLowerCase().includes(query)
-    );
   }
 
   return items;

@@ -11,6 +11,11 @@ export function getNewsList() {
     return request.get('/news/list');
 }
 
+// 搜索信息
+export function searchNews(keyword) {
+    return request.get(`/news/search`, { params: { keyword } });
+}
+
 // 获取信息详情
 export function getNewsDetail(id) {
     return request.get(`/news/detail/${id}`);
