@@ -272,7 +272,7 @@ import { onMounted } from "vue";
 import BottomTabBar from "../components/BottomTabBar.vue";
 
 // 引入环境变量中的API基础地址
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const router = useRouter();
 
@@ -444,7 +444,7 @@ const getCoverImage = (item) => {
   }
   
   // 拼接基础URL
-  const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const baseUrl = IMAGE_BASE_URL.endsWith('/') ? IMAGE_BASE_URL.slice(0, -1) : IMAGE_BASE_URL;
   const path = coverUrl.startsWith('/') ? coverUrl : `/${coverUrl}`;
   
   return `${baseUrl}${path}`;

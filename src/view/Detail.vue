@@ -322,6 +322,7 @@ import { getNewsDetail, likeNews, collectNews } from "../api/news";
 
 const router = useRouter();
 const route = useRoute();
+const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 
 // 详情数据
 const detail = ref({
@@ -361,8 +362,31 @@ const fetchNewsDetail = async (id) => {
 
 // 图片处理
 const imageList = computed(() => {
-  if (!detail.value.cover) return [];
-  return detail.value.cover.split(";").filter((url) => url.trim());
+  if (!detail.value?.cover) return [];
+  
+  // 处理逗号分隔的字符串
+  let urls = [];
+  
+  if (Array.isArray(detail.value.cover)) {
+    urls = detail.value.cover;
+  } else if (typeof detail.value.cover === 'string') {
+    urls = detail.value.cover.split(',').map(url => url.trim()).filter(Boolean);
+  }
+  
+  // 转换为完整URL
+  return urls.map(url => {
+    // 已经是完整URL
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // 拼接基础URL
+    const baseUrl = IMAGE_BASE_URL.replace(/\/$/, '');
+    const path = url.startsWith('/') ? url : `/${url}`;
+    console.log(baseUrl,path);
+    
+    return `${baseUrl}${path}`;
+  });
 });
 
 // 格式化内容（简单处理，实际项目可能需要更复杂的富文本处理）
@@ -437,15 +461,17 @@ const hasCollected = ref(false);
 const likeAnimating = ref(false);
 const collectAnimating = ref(false);
 
+watch(
+  () => detail.value,
+  (newDetail) => {
+    if (!newDetail) return;
 
-watch(() => detail.value, (newDetail) => {
-  if (!newDetail) return;
-  
-  hasLiked.value = newDetail.isLiked || false;
-  likeCount.value = parseFloat(newDetail.likes) || 0;
-  hasCollected.value = newDetail.isCollected || false;  // ← 同步收藏状态
-  
-}, { immediate: true, deep: true });
+    hasLiked.value = newDetail.isLiked || false;
+    likeCount.value = parseFloat(newDetail.likes) || 0;
+    hasCollected.value = newDetail.isCollected || false; // ← 同步收藏状态
+  },
+  { immediate: true, deep: true }
+);
 
 const toggleLike = async () => {
   likeAnimating.value = true;
@@ -467,7 +493,7 @@ const toggleLike = async () => {
 const toggleCollect = async () => {
   collectAnimating.value = true;
   setTimeout(() => (collectAnimating.value = false), 300);
-  
+
   const collectStatus = await collectNews(detail.value.id);
   console.log(collectStatus);
 
