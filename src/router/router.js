@@ -9,7 +9,7 @@ import ProfileEdit from '../view/ProfileEdit.vue'
 import Settings from '../view/Settings.vue'
 import About from '../view/About.vue'
 import Detail from '../view/Detail.vue'
-
+import Publish from '../view/Publish.vue'
 
 const routes = [
     { path: '/', redirect: '/login' },
@@ -17,6 +17,7 @@ const routes = [
     { path: '/register', component: Register },
     { path: '/index', component: Index },
     { path: '/detail', component: Detail },
+    { path: '/publish', component: Publish },
     {
         path: '/profile',
         component: Profile,

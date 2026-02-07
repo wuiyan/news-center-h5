@@ -230,24 +230,7 @@
     </div>
 
     <!-- 底部Tab栏 -->
-    <div class="bottom-tab-bar">
-      <div
-        class="tab-item"
-        :class="{ active: activeTab === 'home' }"
-        @click="activeTab = 'home'"
-      >
-        <span class="tab-icon">🏠</span>
-        <span class="tab-label">首页</span>
-      </div>
-      <div
-        class="tab-item"
-        :class="{ active: activeTab === 'profile' }"
-        @click="goToProfile"
-      >
-        <span class="tab-icon">👤</span>
-        <span class="tab-label">我的</span>
-      </div>
-    </div>
+    <BottomTabBar />
   </div>
 </template>
 
@@ -256,6 +239,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getNewsList, getNewsCategories, searchNews } from "../api/news.js";
 import { onMounted } from "vue";
+import BottomTabBar from "../components/BottomTabBar.vue"; // 引入组件
 
 const router = useRouter();
 
@@ -752,76 +736,6 @@ const goToProfile = () => {
   font-weight: 800;
 }
 
-/* ==================== 底部Tab栏 ==================== */
-.bottom-tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-  min-height: 60px;
-}
-
-.tab-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.tab-item::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 0 0 3px 3px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tab-item.active::before {
-  transform: translateX(-50%) scaleX(1);
-}
-
-.tab-icon {
-  font-size: 24px;
-  transition: all 0.3s ease;
-  filter: grayscale(1) opacity(0.6);
-}
-
-.tab-item.active .tab-icon {
-  filter: grayscale(0) opacity(1);
-  transform: scale(1.08);
-}
-
-.tab-label {
-  font-size: 11px;
-  color: #9aa0a6;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.tab-item.active .tab-label {
-  color: #667eea;
-  font-weight: 600;
-}
-
 /* ==================== 响应式设计 ==================== */
 @media (min-width: 601px) and (max-width: 768px) {
   /* 平板端 - 增加卡片间距 */
@@ -948,5 +862,20 @@ const goToProfile = () => {
 .loading-text {
   font-size: 14px;
   color: #666;
+}
+
+/* 在 style 标签中添加 */
+body {
+  /* 防止iOS橡皮筋滚动影响fixed元素 */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保页面内容区域有正确的padding，避免内容被底部栏遮挡 */
+.info-home,
+.profile-page {
+  /* 关键：使用padding-bottom而不是margin，避免高度计算问题 */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom) + 20px);
+  /* 创建BFC防止margin collapse */
+  overflow-x: hidden;
 }
 </style>

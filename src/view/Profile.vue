@@ -80,16 +80,7 @@
       </div>
     </div>
 
-    <div class="bottom-tab-bar">
-      <div class="tab-item" @click="goToHome">
-        <span class="tab-icon">🏠</span>
-        <span class="tab-label">首页</span>
-      </div>
-      <div class="tab-item active">
-        <span class="tab-icon">👤</span>
-        <span class="tab-label">我的</span>
-      </div>
-    </div>
+    <BottomTabBar />
   </div>
 </template>
 
@@ -97,6 +88,8 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { getUserInfo } from "../api/user.js";
+import BottomTabBar from "../components/BottomTabBar.vue"; // 引入组件
+
 
 const router = useRouter();
 
@@ -589,21 +582,6 @@ const handleLogout = () => {
   height: 12px;
 }
 
-.bottom-tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-  min-height: 60px;
-}
 
 .tab-item {
   flex: 1;
