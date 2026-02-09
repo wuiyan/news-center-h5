@@ -81,7 +81,6 @@
               v-for="article in sortedArticles" 
               :key="article.id"
               class="article-card"
-              @click="goToArticle(article.id)"
             >
               <div class="article-main">
                 <div class="article-header">
@@ -124,10 +123,6 @@
           <div v-if="!loading && articles.length === 0" class="empty-state">
             <span class="empty-icon">📝</span>
             <p class="empty-text">还没有发布任何文章</p>
-            <button class="create-btn" @click="goToCreate">
-              <span class="create-icon">✏️</span>
-              <span class="create-text">创建文章</span>
-            </button>
           </div>
         </div>
       </div>
@@ -267,15 +262,6 @@ const getStatusText = (status) => {
   return statusMap[status] || status;
 };
 
-// 跳转到文章详情
-const goToArticle = (id) => {
-  router.push(`/article/${id}`);
-};
-
-// 跳转到创建文章
-const goToCreate = () => {
-  router.push("/article/create");
-};
 
 const goBack = () => {
   router.back();
