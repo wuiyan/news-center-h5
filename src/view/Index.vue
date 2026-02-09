@@ -85,7 +85,10 @@
 
                   <!-- 底部信息栏 -->
                   <div class="card-footer">
-                    <div class="card-time">{{ formatDate(item.publishTime) }}</div>
+                    <div class="user-info">
+                      <img v-if="item.userAvatar" :src="getUserAvatar(item)" :alt="item.userName" class="user-avatar" @error="handleAvatarError" />
+                      <span class="user-name">{{ item.userName || '匿名用户' }}</span>
+                    </div>
                     <div class="card-stats">
                         <span class="stat-item">
                           <svg
@@ -153,7 +156,10 @@
                     <h3 class="card-title focus-title">{{ item.title }}</h3>
                     <p class="card-summary">{{ item.summary }}</p>
                     <div class="card-footer">
-                      <div class="card-time">{{ formatDate(item.publishTime) }}</div>
+                      <div class="user-info">
+                        <img v-if="item.userAvatar" :src="getUserAvatar(item)" :alt="item.userName" class="user-avatar" @error="handleAvatarError" />
+                        <span class="user-name">{{ item.userName || '匿名用户' }}</span>
+                      </div>
                       <div class="card-stats">
                         <span class="stat-item">
                           <svg
@@ -218,42 +224,45 @@
                   >
                     {{ getCategoryName(item.category) }}
                   </div>
-                  <h3 class="card-title">{{ item.title }}</h3>
-                  <p class="card-summary">{{ item.summary }}</p>
-                  <div class="card-footer">
-                    <div class="card-time">{{ formatDate(item.publishTime) }}</div>
-                    <div class="card-stats">
-                      <span class="stat-item">
-                        <svg
-                          class="stat-icon"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                          ></path>
-                          <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        {{ item.views }}
-                      </span>
-                      <span class="stat-item">
-                        <svg
-                          class="stat-icon"
-                          viewBox="0 0 24 24"
-                          :fill="item.isLiked ? 'currentColor' : 'none'"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                          ></path>
-                        </svg>
-                        {{ item.likes }}
-                      </span>
+                    <h3 class="card-title">{{ item.title }}</h3>
+                    <p class="card-summary">{{ item.summary }}</p>
+                    <div class="card-footer">
+                      <div class="user-info">
+                        <img v-if="item.userAvatar" :src="getUserAvatar(item)" :alt="item.userName" class="user-avatar" @error="handleAvatarError" />
+                        <span class="user-name">{{ item.userName || '匿名用户' }}</span>
+                      </div>
+                      <div class="card-stats">
+                        <span class="stat-item">
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            ></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                          {{ item.views }}
+                        </span>
+                        <span class="stat-item">
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            :fill="item.isLiked ? 'currentColor' : 'none'"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            ></path>
+                          </svg>
+                          {{ item.likes }}
+                        </span>
+                      </div>
                     </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -442,43 +451,29 @@ const getCategoryName = (categoryId) => {
   return category ? category.name : "";
 };
 
-// 格式化日期 - 包含分钟级、小时级、天级和月级
-const formatDate = (dateStr) => {
-  if (!dateStr) return "";
-  
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diff = now - date; // 毫秒差
-  
-  // 分钟级
-  const minutes = Math.floor(diff / (1000 * 60));
-  if (minutes < 1) return "刚刚";
-  if (minutes < 60) return `${minutes}分钟前`;
-  
-  // 小时级
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  if (hours < 24) return `${hours}小时前`;
-  
-  // 天级
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  if (days === 1) return "昨天";
-  if (days === 2) return "前天";
-  if (days < 7) return `${days}天前`;
-  
-  // 周级
-  const weeks = Math.floor(days / 7);
-  if (weeks === 1) return "1周前";
-  if (weeks < 4) return `${weeks}周前`;
-  
-  // 月级
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}个月前`;
-  
-  // 超过一年显示完整日期
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+// 获取用户头像
+const getUserAvatar = (item) => {
+  if (!item.userAvatar) return null;
+
+  let avatarUrl = item.userAvatar;
+
+  // 如果已经是完整URL，直接返回
+  if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
+    return avatarUrl;
+  }
+
+  // 拼接基础URL
+  const baseUrl = IMAGE_BASE_URL.endsWith("/")
+    ? IMAGE_BASE_URL.slice(0, -1)
+    : IMAGE_BASE_URL;
+  const path = avatarUrl.startsWith("/") ? avatarUrl : `/${avatarUrl}`;
+
+  return `${baseUrl}${path}`;
+};
+
+// 头像加载失败处理
+const handleAvatarError = (e) => {
+  e.target.display = 'none';
 };
 
 // 获取分类颜色
@@ -876,10 +871,27 @@ onUnmounted(() => {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.card-time {
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
   font-size: 12px;
   color: #9aa0a6;
   font-weight: 400;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card-stats {

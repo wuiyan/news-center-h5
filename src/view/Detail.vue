@@ -37,17 +37,36 @@
       <div class="content-wrapper">
         <!-- 标题区 -->
         <div class="title-section">
-          <div
-            class="category-tag"
-            :style="{ background: getCategoryColor(detail.category) }"
-          >
-            {{ getCategoryName(detail.category) }}
+          <!-- 用户信息区域 -->
+          <div class="user-info-row">
+            <img
+              v-if="detail.userAvatar"
+              :src="getUserAvatar()"
+              :alt="detail.userName"
+              class="author-avatar"
+              @error="handleAvatarError"
+            />
+            <div v-else class="avatar-placeholder">{{ (detail.userName || '匿名').charAt(0) }}</div>
+            <span class="author-name">{{ detail.userName || '匿名用户' }}</span>
+            <button
+              class="follow-btn"
+              :class="{ following: isFollowing }"
+              @click="toggleFollow"
+            >
+              {{ isFollowing ? '已关注' : '+ 关注' }}
+            </button>
           </div>
+
           <h1 class="detail-title">{{ detail.title }}</h1>
           <div class="meta-info">
-            <span class="publish-time">{{ detail.publishTime }}</span>
+            <div
+              class="category-tag"
+              :style="{ background: getCategoryColor(detail.category) }"
+            >
+              {{ getCategoryName(detail.category) }}
+            </div>
             <span class="dot-separator">·</span>
-            <span class="view-count">{{ detail.viewCount }} 阅读</span>
+            <span class="view-count">{{ detail.viewCount || detail.views || 0 }} 阅读</span>
           </div>
         </div>
 
@@ -101,6 +120,11 @@
 
         <!-- 内容区 -->
         <div class="article-content" v-html="formattedContent"></div>
+
+        <!-- 发布时间 -->
+        <div class="article-publish-time">
+          {{ formatDate(detail.publishTime) }}
+        </div>
 
         <!-- 底部操作栏 -->
         <div class="action-bar">
@@ -165,24 +189,6 @@
             <span class="action-label">{{
               hasCollected ? "已收藏" : "收藏"
             }}</span>
-          </div>
-
-          <div class="action-item" @click="toggleShare">
-            <div class="action-icon-wrapper">
-              <svg
-                class="action-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
-              </svg>
-            </div>
-            <span class="action-label">分享</span>
           </div>
         </div>
       </div>
@@ -329,20 +335,17 @@ const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 // 详情数据
 const detail = ref({
   id: 1,
-  category: "tech",
-  title: "AI技术突破：新一代大语言模型发布",
-  summary:
-    "最新的AI模型在多项基准测试中刷新记录，展现出更强的理解和生成能力...",
-  content:
-    "经过数月的研发，新一代大语言模型正式发布。该模型在自然语言理解、代码生成、多模态处理等方面都有显著提升。<br><br>研究团队表示，新模型采用了创新的架构设计，训练数据规模扩大了3倍，同时在安全性方面进行了深度优化。<br><br>【技术亮点】<br>1. 多模态理解能力大幅提升<br>2. 代码生成准确率提高40%<br>3. 推理速度提升2倍<br><br>这一突破将为各行业带来深远影响...",
-  views: "12.5k",
+  category: "",
+  title: "",
+  summary: "",
+  content: "",
+  views: 0,
   comments: 328,
   likes: 0,
   isLiked: false,
   isCollected: false,
-  publishTime: "2小时前",
-  cover:
-    "https://picsum.photos/800/400?random=1;https://picsum.photos/800/400?random=2;https://picsum.photos/800/400?random=3",
+  publishTime: "",
+  cover:"",
 });
 
 onMounted(() => {
@@ -424,6 +427,35 @@ const getCategoryName = (categoryId) => {
   return map[categoryId] || "资讯";
 };
 
+// 获取用户头像
+const getUserAvatar = () => {
+  if (!detail.value?.userAvatar) return null;
+
+  let avatarUrl = detail.value.userAvatar;
+
+  // 如果已经是完整URL，直接返回
+  if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
+    return avatarUrl;
+  }
+
+  // 拼接基础URL
+  const baseUrl = IMAGE_BASE_URL.replace(/\/$/, '');
+  const path = avatarUrl.startsWith('/') ? avatarUrl : `/${avatarUrl}`;
+
+  return `${baseUrl}${path}`;
+};
+
+// 头像加载失败处理
+const handleAvatarError = (e) => {
+  e.target.style.display = 'none';
+};
+
+// 切换关注状态
+const toggleFollow = () => {
+  isFollowing.value = !isFollowing.value;
+  showToast(isFollowing.value ? '关注成功' : '已取消关注');
+};
+
 // 轮播控制
 const goToSlide = (index) => {
   currentIndex.value = index;
@@ -462,6 +494,7 @@ const likeCount = ref(0);
 const hasCollected = ref(false);
 const likeAnimating = ref(false);
 const collectAnimating = ref(false);
+const isFollowing = ref(false);
 
 watch(
   () => detail.value,
@@ -611,6 +644,45 @@ const loadMoreComments = () => {
   }, 1000);
 };
 
+// 格式化日期 - 包含分钟级、小时级、天级和月级
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now - date;
+
+  // 分钟级
+  const minutes = Math.floor(diff / (1000 * 60));
+  if (minutes < 1) return "刚刚";
+  if (minutes < 60) return `${minutes}分钟前`;
+
+  // 小时级
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  if (hours < 24) return `${hours}小时前`;
+
+  // 天级
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (days === 1) return "昨天";
+  if (days === 2) return "前天";
+  if (days < 7) return `${days}天前`;
+
+  // 周级
+  const weeks = Math.floor(days / 7);
+  if (weeks === 1) return "1周前";
+  if (weeks < 4) return `${weeks}周前`;
+
+  // 月级
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}个月前`;
+
+  // 超过一年显示完整日期
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // 导航
 const goBack = () => {
   router.back();
@@ -734,6 +806,80 @@ onUnmounted(() => {
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+/* 用户信息区域 */
+.user-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 12px;
+}
+
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.author-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.follow-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.follow-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.follow-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.follow-btn.following {
+  background: rgba(255, 255, 255, 1);
+  color: #9aa0a6;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: none;
+}
+
+.follow-btn.following:hover {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
 .category-tag {
   display: inline-block;
   padding: 4px 12px;
@@ -741,7 +887,6 @@ onUnmounted(() => {
   font-size: 12px;
   font-weight: 600;
   color: white;
-  margin-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -869,6 +1014,16 @@ onUnmounted(() => {
   display: block;
   content: "";
   margin-bottom: 12px;
+}
+
+/* 发布时间样式 */
+.article-publish-time {
+  padding: 0 20px 16px;
+  text-align: left;
+  font-size: 12px;
+  color: #9aa0a6;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 12px;
 }
 
 /* ==================== 操作栏 ==================== */
