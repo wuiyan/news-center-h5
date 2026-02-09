@@ -2,25 +2,27 @@
   <div class="detail-page">
     <!-- 顶部导航栏 -->
     <div class="detail-header">
-      <div class="header-left" @click="goBack">
+      <div class="back-btn">
         <svg
           class="back-icon"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           stroke-width="2.5"
+          @click="goBack"
         >
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </div>
       <div class="header-title">资讯详情</div>
-      <div class="header-right" @click="toggleShare">
+      <div class="header-right">
         <svg
           class="share-icon"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           stroke-width="2"
+          @click="toggleShare"
         >
           <circle cx="18" cy="5" r="3" />
           <circle cx="6" cy="12" r="3" />
@@ -651,10 +653,36 @@ onUnmounted(() => {
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
 }
 
-.header-left,
+.back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(102, 126, 234, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateX(-2px);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
+}
+
+.back-icon {
+  width: 20px;
+  height: 20px;
+  color: #667eea;
+}
+
 .header-right {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -663,22 +691,20 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-.header-left:hover,
 .header-right:hover {
   background: rgba(102, 126, 234, 0.1);
 }
 
-.back-icon,
 .share-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   color: #5f6368;
   transition: all 0.3s ease;
 }
 
-.header-left:hover .back-icon {
+.header-right:hover .share-icon {
   color: #667eea;
-  transform: translateX(-2px);
+  transform: scale(1.1);
 }
 
 .header-title {

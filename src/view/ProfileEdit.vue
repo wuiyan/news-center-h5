@@ -1,9 +1,17 @@
 <template>
   <div class="profile-edit-page">
     <div class="nav-header global-nav">
-      <button class="back-btn" @click="goBack">
-        <span class="back-icon">←</span>
-      </button>
+      <div class="back-btn" @click="goBack">
+        <svg
+          class="back-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </div>
       <h1 class="page-title">编辑资料</h1>
     </div>
     <div class="page-container">
@@ -364,15 +372,15 @@ const handleSave = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border: none;
   border-radius: 50%;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
+  background: rgba(102, 126, 234, 0.1);
 }
 
 .back-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateX(-2px);
 }
 
 .back-btn:active {
@@ -380,9 +388,9 @@ const handleSave = async () => {
 }
 
 .back-icon {
-  font-size: 20px;
-  color: #202124;
-  font-weight: 600;
+  width: 20px;
+  height: 20px;
+  color: #667eea;
 }
 
 .page-title {

@@ -2,9 +2,17 @@
   <div class="article-stats-page">
     <!-- 顶部导航栏 -->
     <div class="top-navbar">
-      <button class="back-btn" @click="goBack">
-        <span class="back-icon">←</span>
-      </button>
+      <div class="back-btn" @click="goBack">
+        <svg
+          class="back-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </div>
       <h1 class="navbar-title">文章统计</h1>
       <div class="navbar-placeholder"></div>
     </div>
@@ -319,18 +327,16 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: #000000;
   cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(102, 126, 234, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
 }
 
 .back-btn:hover {
+  background: rgba(102, 126, 234, 0.2);
   transform: translateX(-2px);
 }
 
@@ -339,9 +345,9 @@ onMounted(() => {
 }
 
 .back-icon {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
+  width: 20px;
+  height: 20px;
+  color: #667eea;
 }
 
 .navbar-title {
