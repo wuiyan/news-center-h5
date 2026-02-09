@@ -83,10 +83,10 @@
                     <!-- 摘要 -->
                     <p class="card-summary">{{ item.summary }}</p>
 
-                    <!-- 底部信息栏 -->
-                    <div class="card-footer">
-                      <div class="card-time">{{ item.publishTime }}</div>
-                      <div class="card-stats">
+                  <!-- 底部信息栏 -->
+                  <div class="card-footer">
+                    <div class="card-time">{{ formatDate(item.publishTime) }}</div>
+                    <div class="card-stats">
                         <span class="stat-item">
                           <svg
                             class="stat-icon"
@@ -153,7 +153,7 @@
                     <h3 class="card-title focus-title">{{ item.title }}</h3>
                     <p class="card-summary">{{ item.summary }}</p>
                     <div class="card-footer">
-                      <div class="card-time">{{ item.publishTime }}</div>
+                      <div class="card-time">{{ formatDate(item.publishTime) }}</div>
                       <div class="card-stats">
                         <span class="stat-item">
                           <svg
@@ -221,7 +221,7 @@
                   <h3 class="card-title">{{ item.title }}</h3>
                   <p class="card-summary">{{ item.summary }}</p>
                   <div class="card-footer">
-                    <div class="card-time">{{ item.publishTime }}</div>
+                    <div class="card-time">{{ formatDate(item.publishTime) }}</div>
                     <div class="card-stats">
                       <span class="stat-item">
                         <svg
@@ -395,6 +395,45 @@ const openDetail = (item) => {
 const getCategoryName = (categoryId) => {
   const category = categories.value.find((c) => c.id === categoryId);
   return category ? category.name : "";
+};
+
+// 格式化日期 - 包含分钟级、小时级、天级和月级
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now - date; // 毫秒差
+  
+  // 分钟级
+  const minutes = Math.floor(diff / (1000 * 60));
+  if (minutes < 1) return "刚刚";
+  if (minutes < 60) return `${minutes}分钟前`;
+  
+  // 小时级
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  if (hours < 24) return `${hours}小时前`;
+  
+  // 天级
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (days === 1) return "昨天";
+  if (days === 2) return "前天";
+  if (days < 7) return `${days}天前`;
+  
+  // 周级
+  const weeks = Math.floor(days / 7);
+  if (weeks === 1) return "1周前";
+  if (weeks < 4) return `${weeks}周前`;
+  
+  // 月级
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}个月前`;
+  
+  // 超过一年显示完整日期
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 // 获取分类颜色
