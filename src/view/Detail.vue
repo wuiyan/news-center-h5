@@ -45,8 +45,9 @@
               :alt="detail.userName"
               class="author-avatar"
               @error="handleAvatarError"
+              @click="goToUserDetail"
             />
-            <div v-else class="avatar-placeholder">{{ (detail.userName || '匿名').charAt(0) }}</div>
+            <div v-else class="avatar-placeholder" @click="goToUserDetail">{{ (detail.userName || '匿名').charAt(0) }}</div>
             <span class="author-name">{{ detail.userName || '匿名用户' }}</span>
             <button
               class="follow-btn"
@@ -456,6 +457,20 @@ const toggleFollow = () => {
   showToast(isFollowing.value ? '关注成功' : '已取消关注');
 };
 
+// 跳转到用户详情页
+const goToUserDetail = () => {
+  const userName = detail.value.userName;
+  const userAvatar = detail.value.userAvatar;
+
+  router.push({
+    path: '/user/detail',
+    query: {
+      userName: userName,
+      userAvatar: userAvatar
+    }
+  });
+};
+
 // 轮播控制
 const goToSlide = (index) => {
   currentIndex.value = index;
@@ -812,8 +827,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
-  padding: 12px;
-  background: rgba(248, 249, 250, 0.8);
+  margin-top: 12px;
   border-radius: 12px;
 }
 
@@ -823,6 +837,13 @@ onUnmounted(() => {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(102, 126, 234, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.author-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .avatar-placeholder {
@@ -837,6 +858,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   border: 2px solid rgba(102, 126, 234, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.avatar-placeholder:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .author-name {

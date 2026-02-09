@@ -11,6 +11,7 @@ import About from '../view/About.vue'
 import Detail from '../view/Detail.vue'
 import Publish from '../view/Publish.vue'
 import Articlestats from '../view/Articlestats.vue'
+import UserDetail from '../view/UserDetail.vue'
 
 const routes = [
     { path: '/', redirect: '/login' },
@@ -18,6 +19,7 @@ const routes = [
     { path: '/register', component: Register },
     { path: '/index', component: Index },
     { path: '/detail', component: Detail },
+    { path: '/user/detail', component: UserDetail },
     { path: '/publish', component: Publish },
     {
         path: '/profile',

@@ -3,7 +3,14 @@
     <div class="main-content">
       <div class="content-container">
         <div class="user-info-card">
-          <div class="avatar-wrapper">
+          <div class="settings-icon" @click="showSettingsMenu = true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </div>
+
+          <div class="avatar-wrapper" @click="goToEdit">
             <div class="avatar" :style="avatarStyle">
               <template v-if="user.avatar">
                 <img
@@ -18,67 +25,137 @@
             </div>
           </div>
           <div class="user-details">
-            <h2 class="user-name">{{ user.name }}</h2>
-            <p class="user-email" v-if="user.email">{{ user.email }}</p>
-            <p class="user-email empty" v-else>未设置邮箱</p>
-            <button class="edit-btn" @click="goToEdit">
-              <span class="edit-icon">✏️</span>
-              <span class="edit-text">编辑资料</span>
-            </button>
+            <h2 class="user-name" @click="goToEdit">{{ user.name }}</h2>
+            <p class="user-email" v-if="user.email" @click="goToEdit">{{ user.email }}</p>
+            <p class="user-email empty" v-else @click="goToEdit">点击设置邮箱</p>
           </div>
         </div>
 
-        <div class="stats-section">
-          <div class="stats-card" @click="goToWorks">
-            <div class="stat-item">
-              <span class="stat-icon">📊</span>
-              <span class="stat-value">{{
-                formatNumber(stats.published)
-              }}</span>
-              <span class="stat-label">发布</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-icon">👁️</span>
-              <span class="stat-value">{{ formatNumber(stats.views) }}</span>
-              <span class="stat-label">浏览</span>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <span class="stat-icon">❤️</span>
-              <span class="stat-value">{{ formatNumber(stats.likes) }}</span>
-              <span class="stat-label">获赞</span>
-            </div>
+        <div class="stats-mini-section">
+          <div class="stat-mini-card">
+            <span class="stat-mini-value">{{ formatNumber(stats.published) }}</span>
+            <span class="stat-mini-label">发布</span>
+          </div>
+          <div class="stat-mini-card">
+            <span class="stat-mini-value">{{ formatNumber(stats.views) }}</span>
+            <span class="stat-mini-label">浏览</span>
+          </div>
+          <div class="stat-mini-card">
+            <span class="stat-mini-value">{{ formatNumber(stats.likes) }}</span>
+            <span class="stat-mini-label">获赞</span>
           </div>
         </div>
 
-        <div class="menu-section">
-          <div class="menu-card settings-card">
-            <div class="menu-item" @click="goToSettings">
-              <span class="menu-icon">⚙️</span>
-              <span class="menu-label">设置</span>
-              <span class="menu-arrow">&gt;</span>
-            </div>
-          </div>
+        <div class="works-section">
+          <h3 class="section-title">我的作品</h3>
+          <div class="works-container">
+            <van-overlay :show="isLoading" class-name="loading-overlay">
+              <div class="loading-wrapper">
+                <van-loading type="spinner" color="#1989fa" size="40px" />
+                <span class="loading-text">加载中...</span>
+              </div>
+            </van-overlay>
 
-          <div class="divider"></div>
-
-          <div class="menu-card logout-card">
-            <div class="menu-item" @click="goToAbout">
-              <span class="menu-icon">📝</span>
-              <span class="menu-label">关于</span>
-              <span class="menu-arrow">&gt;</span>
+            <div class="empty-state" v-if="articleList.length === 0 && !isLoading">
+              <div class="empty-icon">📝</div>
+              <p class="empty-text">暂无作品</p>
             </div>
-            <div class="divider-line"></div>
-            <div class="menu-item logout-item" @click="handleLogout">
-              <span class="menu-icon">🚪</span>
-              <span class="menu-label">退出登录</span>
-              <span class="menu-arrow">&gt;</span>
+
+            <div v-else class="waterfall-wrapper">
+              <div class="waterfall-column">
+                <div v-for="(article, index) in leftColumnArticles" :key="article.id" class="card-wrapper" @click="openDetail(article)">
+                  <div class="info-card">
+                    <div v-if="getCoverImage(article)" class="card-cover">
+                      <img :src="getCoverImage(article)" :alt="article.title" class="cover-image" @error="handleImageError" />
+                    </div>
+                    <div class="card-content">
+                      <div class="card-category" :style="{ background: getCategoryColor(article.category) }">
+                        {{ getCategoryName(article.category) }}
+                      </div>
+                      <h3 class="card-title">{{ article.title }}</h3>
+                      <p class="card-summary">{{ article.summary }}</p>
+                      <div class="card-footer">
+                        <div class="card-stats">
+                          <span class="stat-item">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {{ article.views || 0 }}
+                          </span>
+                          <span class="stat-item">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            {{ article.likes || 0 }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="waterfall-column">
+                <div v-for="article in rightColumnArticles" :key="article.id" class="card-wrapper" @click="openDetail(article)">
+                  <div class="info-card">
+                    <div v-if="getCoverImage(article)" class="card-cover">
+                      <img :src="getCoverImage(article)" :alt="article.title" class="cover-image" @error="handleImageError" />
+                    </div>
+                    <div class="card-content">
+                      <div class="card-category" :style="{ background: getCategoryColor(article.category) }">
+                        {{ getCategoryName(article.category) }}
+                      </div>
+                      <h3 class="card-title">{{ article.title }}</h3>
+                      <p class="card-summary">{{ article.summary }}</p>
+                      <div class="card-footer">
+                        <div class="card-stats">
+                          <span class="stat-item">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            {{ article.views || 0 }}
+                          </span>
+                          <span class="stat-item">
+                            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            {{ article.likes || 0 }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <van-popup v-model:show="showSettingsMenu" position="bottom" round class="settings-popup">
+      <div class="settings-content">
+        <div class="settings-title">设置</div>
+        <div class="settings-item" @click="goToSettings">
+          <span class="settings-item-icon">⚙️</span>
+          <span class="settings-item-label">应用设置</span>
+          <span class="settings-arrow">&gt;</span>
+        </div>
+        <div class="settings-item" @click="goToAbout">
+          <span class="settings-item-icon">📝</span>
+          <span class="settings-item-label">关于我们</span>
+          <span class="settings-arrow">&gt;</span>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-item logout-item" @click="handleLogout">
+          <span class="settings-item-icon">🚪</span>
+          <span class="settings-item-label">退出登录</span>
+          <span class="settings-arrow">&gt;</span>
+        </div>
+      </div>
+    </van-popup>
 
     <BottomTabBar />
   </div>
@@ -89,13 +166,13 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { getUserInfo } from "../api/user.js";
 import { getUserNewsList } from "../api/news.js";
-import BottomTabBar from "../components/BottomTabBar.vue"; // 引入组件
-const VITE_IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL; // 引入环境变量中的API基础地址
+import BottomTabBar from "../components/BottomTabBar.vue";
+import { showToast } from 'vant';
 
+const VITE_IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const router = useRouter();
-// 用户信息列表
-const userNews = ref([]);
+
 const user = ref({
   id: null,
   name: "",
@@ -104,6 +181,11 @@ const user = ref({
   avatar: "",
 });
 
+const isLoading = ref(false);
+const showSettingsMenu = ref(false);
+
+const articleList = ref([]);
+
 const avatarStyle = computed(() => {
   if (user.value.avatar) {
     return {
@@ -111,8 +193,7 @@ const avatarStyle = computed(() => {
     };
   }
   return {
-    background:
-      user.value.avatarColor || "linear-gradient(135deg, #667eea, #764ba2)",
+    background: user.value.avatarColor || "linear-gradient(135deg, #667eea, #764ba2)",
   };
 });
 
@@ -121,8 +202,17 @@ const stats = ref({
   views: 0,
   likes: 0,
 });
+// 作品数据
+const userArticle = ref([]);
 
-// 格式化数字显示
+const leftColumnArticles = computed(() => {
+  return articleList.value.filter((_, index) => index % 2 === 0);
+});
+
+const rightColumnArticles = computed(() => {
+  return articleList.value.filter((_, index) => index % 2 === 1);
+});
+
 const formatNumber = (num) => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + "M";
@@ -133,21 +223,16 @@ const formatNumber = (num) => {
   return num.toString();
 };
 
-// 获取统计数据
-watch(userNews, (newNews) => {
-  const published = newNews.total || 0;
-  const views = newNews.totalViews || 0;
-  const likes = newNews.totalLikes || 0;
+watch(userArticle, (newList) => {
+  const published = newList.total || 0;
+  const views = newList.totalViews || 0;
+  const likes = newList.totalLikes || 0;
   stats.value = { published, views, likes };
 }, { immediate: true });
 
-
-
-// 将用户信息合并到 localStorage.user
 const updateLocalStorage = (newData) => {
   try {
     const safe = { ...newData };
-    // 不要在本地存储敏感信息，比如密码
     if (safe.password !== undefined) delete safe.password;
     localStorage.setItem("user", JSON.stringify(safe));
   } catch (e) {
@@ -155,9 +240,62 @@ const updateLocalStorage = (newData) => {
   }
 };
 
+const getCategoryName = (categoryId) => {
+  const map = {
+    tech: "科技",
+    finance: "财经",
+    entertainment: "娱乐",
+    sports: "体育",
+    life: "生活",
+  };
+  return map[categoryId] || "资讯";
+};
+
+const getCategoryColor = (categoryId) => {
+  const colorMap = {
+    tech: "linear-gradient(135deg, #667eea, #764ba2)",
+    finance: "linear-gradient(135deg, #f093fb, #f5576c)",
+    entertainment: "linear-gradient(135deg, #fa709a, #fee140)",
+    sports: "linear-gradient(135deg, #30cfd0, #330867)",
+    life: "linear-gradient(135deg, #a8edea, #fed6e3)",
+  };
+  return colorMap[categoryId] || "linear-gradient(135deg, #667eea, #764ba2)";
+};
+
+const getCoverImage = (article) => {
+  if (!article.cover) return null;
+  let coverUrl = "";
+  if (typeof article.cover === "string") {
+    const coverArray = article.cover.split(",").map(url => url.trim()).filter(url => url.length > 0);
+    if (coverArray.length === 0) return null;
+    coverUrl = coverArray[0];
+  } else {
+    return null;
+  }
+  if (!coverUrl) return null;
+  if (coverUrl.startsWith("http://") || coverUrl.startsWith("https://")) {
+    return coverUrl;
+  }
+  const baseUrl = VITE_IMAGE_BASE_URL.endsWith("/") ? VITE_IMAGE_BASE_URL.slice(0, -1) : VITE_IMAGE_BASE_URL;
+  const path = coverUrl.startsWith("/") ? coverUrl : `/${coverUrl}`;
+  return `${baseUrl}${path}`;
+};
+
+const handleImageError = (e) => {
+  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3E暂无图片%3C/text%3E%3C/svg%3E';
+  e.target.style.objectFit = "contain";
+};
+
+const openDetail = (article) => {
+  router.push({
+    path: "/detail",
+    query: { id: article.id },
+  });
+};
+
 onMounted(() => {
   loadUserData();
-  getUserNews();
+  loadUserNews();
 });
 
 const loadUserData = async () => {
@@ -165,7 +303,6 @@ const loadUserData = async () => {
   if (userData) {
     try {
       const parsed = JSON.parse(userData);
-      // 先使用本地数据快速渲染
       user.value = {
         id: parsed.id || "",
         name: parsed.name?.trim() || "未命名用户",
@@ -174,15 +311,9 @@ const loadUserData = async () => {
         avatar: parsed.avatar || "",
       };
 
-      // 异步请求后端获取实时用户信息并更新（若接口可用）
       try {
         const remote = await getUserInfo();
-
-        // 统一处理：优先取 remote.data，如果已经是纯数据则直接用
         const userInfo = remote?.data ?? remote;
-
-        console.log("原始响应:", remote);
-        console.log("提取数据:", userInfo);
 
         if (userInfo) {
           const mappedData = {
@@ -193,18 +324,15 @@ const loadUserData = async () => {
             avatar: userInfo.avatar || user.value.avatar,
           };
           user.value = mappedData;
-          // 同步到本地存储（会排除敏感字段）
           updateLocalStorage(mappedData);
         } else {
           console.warn("接口返回空数据或格式不匹配:", remote);
         }
       } catch (error) {
         console.warn("获取远程用户信息失败:", error);
-        // 保留本地数据，不做更改
       }
     } catch (e) {
       console.error("解析用户数据失败:", e);
-      // 解析失败时使用默认值
       user.value = {
         id: "",
         name: "未命名用户",
@@ -215,7 +343,6 @@ const loadUserData = async () => {
       };
     }
   } else {
-    // 没有用户数据时使用默认值
     user.value = {
       id: "",
       name: "未命名用户",
@@ -227,41 +354,40 @@ const loadUserData = async () => {
   }
 };
 
-// 获取用户的发布信息
-const getUserNews = async () => {
+const loadUserNews = async () => {
   try {
+    isLoading.value = true;
     const response = await getUserNewsList();
-    userNews.value = response.data || [];
+    const data = response.data || {};
+    userArticle.value = data || [];
+    articleList.value = data.list || [];
   } catch (error) {
-    console.error("获取用户发布信息失败:", error);
-    userNews.value = [];
+    console.error("获取用户作品失败:", error);
+    articleList.value = [];
+  } finally {
+    isLoading.value = false;
   }
-};
-
-const goToHome = () => {
-  router.push("/index");
 };
 
 const goToEdit = () => {
   router.push("/profile/edit");
 };
 
-const goToWorks = () => {
-  router.push("/profile/articlestats");
-};
-
 const goToSettings = () => {
+  showSettingsMenu.value = false;
   router.push("/settings");
 };
 
 const goToAbout = () => {
+  showSettingsMenu.value = false;
   router.push("/about");
 };
 
 const handleLogout = () => {
-  if (confirm("确定要退出登录吗？")) {
+  if (confirm("确定要退出登录吗?")) {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    showSettingsMenu.value = false;
     router.push("/login");
   }
 };
@@ -277,8 +403,7 @@ const handleLogout = () => {
 .profile-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   padding-bottom: 70px;
   padding-top: 16px;
 }
@@ -304,6 +429,7 @@ const handleLogout = () => {
   align-items: center;
   gap: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
+  position: relative;
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -318,8 +444,40 @@ const handleLogout = () => {
   }
 }
 
+.settings-icon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-icon:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: rotate(45deg);
+}
+
+.settings-icon svg {
+  width: 20px;
+  height: 20px;
+  color: #667eea;
+}
+
 .avatar-wrapper {
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.avatar-wrapper:hover {
+  transform: scale(1.05);
 }
 
 .avatar {
@@ -356,16 +514,27 @@ const handleLogout = () => {
   color: #1a1a1a;
   margin-bottom: 4px;
   line-height: 1.3;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.user-name:hover {
+  color: #667eea;
 }
 
 .user-email {
   font-size: 13px;
   color: #4a4a4a;
-  margin-bottom: 12px;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.user-email:hover {
+  color: #667eea;
 }
 
 .user-email.empty {
@@ -373,125 +542,242 @@ const handleLogout = () => {
   font-style: italic;
 }
 
-.edit-btn {
-  padding: 8px 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.edit-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.edit-text {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.edit-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.edit-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.stats-section {
-  margin-bottom: 16px;
-}
-
-.stats-card {
+.stats-mini-section {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-radius: 16px;
-  padding: 24px;
-  display: grid;
-  /* item | divider | item | divider | item - 确保三项水平居中对齐 */
-  grid-template-columns: 1fr 1px 1fr 1px 1fr;
-  align-items: center;
-  column-gap: 16px;
-  row-gap: 0;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s backwards;
 }
 
-.stat-item {
+.stat-mini-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  transition: transform 0.2s ease;
+  gap: 4px;
 }
 
-.stat-item:hover {
-  transform: scale(1.05);
-}
-
-.stat-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-  line-height: 1;
-}
-
-.stat-value {
-  font-size: 22px;
+.stat-mini-value {
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 4px;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
 }
 
-.stat-label {
+.stat-mini-label {
   font-size: 12px;
   color: #6b7280;
   font-weight: 500;
   letter-spacing: 0.5px;
 }
 
-.stat-divider {
-  width: 1px;
-  background: rgba(0, 0, 0, 0.06);
-  height: 40px;
-  justify-self: center;
-  align-self: center;
+.works-section {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
   animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
 }
 
-.menu-card {
-  background: rgba(255, 255, 255, 0.95);
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #202124;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.works-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+}
+
+.loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: #666;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 15px;
+  color: #9aa0a6;
+}
+
+.waterfall-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.waterfall-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-wrapper {
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.info-card {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.98) 100%);
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.09);
+  position: relative;
 }
 
-.settings-card {
-  margin-bottom: 12px;
-  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s backwards;
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
-.logout-card {
-  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s backwards;
+.info-card:active {
+  transform: translateY(-2px) scale(0.98);
 }
 
-.menu-item {
-  background: transparent;
+.card-cover {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: #f5f5f5;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.info-card:hover .cover-image {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 14px;
+}
+
+.card-category {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #202124;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-summary {
+  font-size: 14px;
+  color: #5f6368;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.card-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9aa0a6;
+  font-weight: 400;
+}
+
+.stat-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+.settings-popup {
+  background: transparent !important;
+}
+
+.settings-content {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+}
+
+.settings-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #202124;
+  margin-bottom: 20px;
+}
+
+.settings-item {
   height: 56px;
   padding: 0 20px;
   display: flex;
@@ -499,134 +785,56 @@ const handleLogout = () => {
   gap: 14px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  border-radius: 12px;
 }
 
-.menu-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.05),
-    rgba(118, 75, 162, 0.05)
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.settings-item:hover {
+  background: rgba(102, 126, 234, 0.05);
 }
 
-.menu-item:hover::before {
-  opacity: 1;
-}
-
-.menu-item:hover {
-  transform: translateY(0);
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.05),
-    rgba(118, 75, 162, 0.05)
-  );
-}
-
-.menu-item:active {
-  transform: scale(0.98);
-  transition: transform 0.1s;
-}
-
-.menu-item.logout-item:hover {
+.settings-item.logout-item:hover {
   background: rgba(255, 107, 107, 0.1);
 }
 
-.menu-icon {
-  font-size: 22px;
+.settings-item-icon {
+  font-size: 20px;
   line-height: 1;
 }
 
-.menu-label {
+.settings-item-label {
   flex: 1;
   font-size: 15px;
   font-weight: 600;
   color: #1a1a1a;
-  letter-spacing: 0.3px;
 }
 
-.menu-arrow {
+.settings-arrow {
   font-size: 14px;
   color: #6b7280;
   font-weight: 700;
-  transition: transform 0.2s ease;
 }
 
-.menu-item:hover .menu-arrow {
-  transform: translateX(3px);
-  color: #667eea;
-}
-
-.divider-line {
+.settings-divider {
   height: 1px;
   background: rgba(0, 0, 0, 0.06);
+  margin: 8px 0;
 }
 
-.divider {
-  height: 12px;
-}
-
-
-.tab-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 0;
+.settings-cancel {
+  text-align: center;
+  padding: 16px;
+  font-size: 16px;
+  color: #5f6368;
+  border-top: 1px solid #f0f2f5;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.tab-item::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  width: 40px;
-  height: 3px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 0 0 3px 3px;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tab-item.active::before {
-  transform: translateX(-50%) scaleX(1);
-}
-
-.tab-icon {
-  font-size: 24px;
-  transition: all 0.3s ease;
-  filter: grayscale(1) opacity(0.6);
-}
-
-.tab-item.active .tab-icon {
-  filter: grayscale(0) opacity(1);
-  transform: scale(1.08);
-}
-
-.tab-label {
-  font-size: 11px;
-  color: #6b7280;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
+  margin-top: 8px;
 }
 
-.tab-item.active .tab-label {
+.settings-cancel:hover {
   color: #667eea;
-  font-weight: 600;
+  background: #f8f9fa;
 }
 
 @media (max-width: 600px) {
@@ -653,41 +861,50 @@ const handleLogout = () => {
     font-size: 12px;
   }
 
-  /* 移动端：使用三列布局并隐藏分隔线以避免拥挤 */
-  .stats-card {
-    padding: 18px;
-    grid-template-columns: repeat(3, 1fr);
+  .settings-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .stats-mini-section {
+    padding: 16px 20px;
     gap: 12px;
   }
 
-  .stat-divider {
-    display: none;
-  }
-
-  .stat-icon {
-    font-size: 28px;
-  }
-
-  .stat-value {
+  .stat-mini-value {
     font-size: 20px;
   }
 
-  .stat-label {
-    font-size: 11px;
+  .section-title {
+    font-size: 16px;
   }
 
-  .menu-item {
-    height: 54px;
-    padding: 0 16px;
-    border-radius: 14px;
+  .works-section {
+    padding: 16px;
   }
 
-  .menu-icon {
-    font-size: 20px;
+  .waterfall-wrapper {
+    gap: 10px;
   }
 
-  .menu-label {
-    font-size: 14px;
+  .waterfall-column {
+    gap: 10px;
+  }
+
+  .info-card {
+    border-radius: 12px;
+  }
+
+  .card-content {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .card-summary {
+    font-size: 13px;
   }
 }
 </style>
