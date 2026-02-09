@@ -1,9 +1,9 @@
 <script setup>
-import request from "../api/request.js";
+import request from "../../api/request.js";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { showToast, showSuccessToast, showFailToast } from 'vant'
-import { getUserInfo } from "../api/user.js";
+import { getUserInfo } from "../../api/user.js";
 
 
 const router = useRouter()

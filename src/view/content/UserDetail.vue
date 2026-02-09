@@ -2,7 +2,13 @@
   <div class="user-detail-page">
     <div class="header-nav">
       <div class="back-btn" @click="goBack">
-        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg
+          class="back-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+        >
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </div>
@@ -14,11 +20,19 @@
       <div class="user-profile-card">
         <div class="user-info-section">
           <div class="avatar-wrapper">
-            <img v-if="user.avatar" :src="userAvatar" :alt="user.name" class="user-large-avatar" @error="handleAvatarError" />
-            <div v-else class="avatar-large-placeholder">{{ (user.name || '用户').charAt(0) }}</div>
+            <img
+              v-if="user.avatar"
+              :src="userAvatar"
+              :alt="user.name"
+              class="user-large-avatar"
+              @error="handleAvatarError"
+            />
+            <div v-else class="avatar-large-placeholder">
+              {{ (user.name || "用户").charAt(0) }}
+            </div>
           </div>
-          <h1 class="user-name">{{ user.name || '未知用户' }}</h1>
-          <p class="user-bio">{{ user.bio || '这个人很懒，还没有写简介' }}</p>
+          <h1 class="user-name">{{ user.name || "未知用户" }}</h1>
+          <p class="user-bio">{{ user.bio || "这个人很懒，还没有写简介" }}</p>
           <div class="user-stats">
             <div class="stat-item">
               <span class="stat-value">{{ articleCount }}</span>
@@ -53,13 +67,26 @@
 
           <div v-else class="waterfall-wrapper">
             <div class="waterfall-column">
-              <div v-for="(item, index) in leftColumnItems" :key="item.id" class="card-wrapper" @click="openDetail(item)">
+              <div
+                v-for="(item, index) in leftColumnItems"
+                :key="item.id"
+                class="card-wrapper"
+                @click="openDetail(item)"
+              >
                 <div class="info-card">
                   <div v-if="getCoverImage(item)" class="card-cover">
-                    <img :src="getCoverImage(item)" :alt="item.title" class="cover-image" @error="handleImageError" />
+                    <img
+                      :src="getCoverImage(item)"
+                      :alt="item.title"
+                      class="cover-image"
+                      @error="handleImageError"
+                    />
                   </div>
                   <div class="card-content">
-                    <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                    <div
+                      class="card-category"
+                      :style="{ background: getCategoryColor(item.category) }"
+                    >
                       {{ getCategoryName(item.category) }}
                     </div>
                     <h3 class="card-title">{{ item.title }}</h3>
@@ -67,15 +94,31 @@
                     <div class="card-footer">
                       <div class="card-stats">
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            />
                             <circle cx="12" cy="12" r="3" />
                           </svg>
                           {{ item.views || 0 }}
                         </span>
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            />
                           </svg>
                           {{ item.likes || 0 }}
                         </span>
@@ -87,13 +130,26 @@
             </div>
 
             <div class="waterfall-column">
-              <div v-for="item in rightColumnItems" :key="item.id" class="card-wrapper" @click="openDetail(item)">
+              <div
+                v-for="item in rightColumnItems"
+                :key="item.id"
+                class="card-wrapper"
+                @click="openDetail(item)"
+              >
                 <div class="info-card">
                   <div v-if="getCoverImage(item)" class="card-cover">
-                    <img :src="getCoverImage(item)" :alt="item.title" class="cover-image" @error="handleImageError" />
+                    <img
+                      :src="getCoverImage(item)"
+                      :alt="item.title"
+                      class="cover-image"
+                      @error="handleImageError"
+                    />
                   </div>
                   <div class="card-content">
-                    <div class="card-category" :style="{ background: getCategoryColor(item.category) }">
+                    <div
+                      class="card-category"
+                      :style="{ background: getCategoryColor(item.category) }"
+                    >
                       {{ getCategoryName(item.category) }}
                     </div>
                     <h3 class="card-title">{{ item.title }}</h3>
@@ -101,15 +157,31 @@
                     <div class="card-footer">
                       <div class="card-stats">
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                            />
                             <circle cx="12" cy="12" r="3" />
                           </svg>
                           {{ item.views || 0 }}
                         </span>
                         <span class="stat-item">
-                          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                          <svg
+                            class="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                            />
                           </svg>
                           {{ item.likes || 0 }}
                         </span>
@@ -129,10 +201,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import BottomTabBar from '../components/BottomTabBar.vue';
-import { getNewsList } from '../api/news.js';
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import BottomTabBar from "../../components/BottomTabBar.vue";
+import { getNewsList } from "../../api/news.js";
 
 const router = useRouter();
 const route = useRoute();
@@ -140,28 +212,40 @@ const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const user = ref({
   id: null,
-  name: '',
-  avatar: '',
-  bio: ''
+  name: "",
+  avatar: "",
+  bio: "",
 });
 
 const isLoading = ref(false);
 const userWorks = ref([]);
 
 const userAvatar = computed(() => {
-  if (!user.value.avatar) return '';
+  if (!user.value.avatar) return "";
   let avatarUrl = user.value.avatar;
-  if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
+  if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
     return avatarUrl;
   }
-  const baseUrl = IMAGE_BASE_URL.endsWith('/') ? IMAGE_BASE_URL.slice(0, -1) : IMAGE_BASE_URL;
-  const path = avatarUrl.startsWith('/') ? avatarUrl : `/${avatarUrl}`;
+  const baseUrl = IMAGE_BASE_URL.endsWith("/")
+    ? IMAGE_BASE_URL.slice(0, -1)
+    : IMAGE_BASE_URL;
+  const path = avatarUrl.startsWith("/") ? avatarUrl : `/${avatarUrl}`;
   return `${baseUrl}${path}`;
 });
 
 const articleCount = computed(() => userWorks.value.length);
-const totalViewCount = computed(() => userWorks.value.reduce((sum, item) => sum + (item.views || 0), 0));
-const totalLikeCount = computed(() => userWorks.value.reduce((sum, item) => sum + (item.likes || 0), 0));
+const totalViewCount = computed(() =>
+  userWorks.value.reduce(
+    (sum, item) => sum + (parseInt(item.views, 10) || 0),
+    0
+  )
+);
+const totalLikeCount = computed(() =>
+  userWorks.value.reduce(
+    (sum, item) => sum + (parseInt(item.likes, 10) || 0),
+    0
+  )
+);
 
 const leftColumnItems = computed(() => {
   return userWorks.value.filter((_, index) => index % 2 === 0);
@@ -173,58 +257,64 @@ const rightColumnItems = computed(() => {
 
 const getCategoryName = (categoryId) => {
   const map = {
-    tech: '科技',
-    finance: '财经',
-    entertainment: '娱乐',
-    sports: '体育',
-    life: '生活',
+    tech: "科技",
+    finance: "财经",
+    entertainment: "娱乐",
+    sports: "体育",
+    life: "生活",
   };
-  return map[categoryId] || '资讯';
+  return map[categoryId] || "资讯";
 };
 
 const getCategoryColor = (categoryId) => {
   const colorMap = {
-    tech: 'linear-gradient(135deg, #667eea, #764ba2)',
-    finance: 'linear-gradient(135deg, #f093fb, #f5576c)',
-    entertainment: 'linear-gradient(135deg, #fa709a, #fee140)',
-    sports: 'linear-gradient(135deg, #30cfd0, #330867)',
-    life: 'linear-gradient(135deg, #a8edea, #fed6e3)',
+    tech: "linear-gradient(135deg, #667eea, #764ba2)",
+    finance: "linear-gradient(135deg, #f093fb, #f5576c)",
+    entertainment: "linear-gradient(135deg, #fa709a, #fee140)",
+    sports: "linear-gradient(135deg, #30cfd0, #330867)",
+    life: "linear-gradient(135deg, #a8edea, #fed6e3)",
   };
-  return colorMap[categoryId] || 'linear-gradient(135deg, #667eea, #764ba2)';
+  return colorMap[categoryId] || "linear-gradient(135deg, #667eea, #764ba2)";
 };
 
 const getCoverImage = (item) => {
   if (!item.cover) return null;
-  let coverUrl = '';
-  if (typeof item.cover === 'string') {
-    const coverArray = item.cover.split(',').map(url => url.trim()).filter(url => url.length > 0);
+  let coverUrl = "";
+  if (typeof item.cover === "string") {
+    const coverArray = item.cover
+      .split(",")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
     if (coverArray.length === 0) return null;
     coverUrl = coverArray[0];
   } else {
     return null;
   }
   if (!coverUrl) return null;
-  if (coverUrl.startsWith('http://') || coverUrl.startsWith('https://')) {
+  if (coverUrl.startsWith("http://") || coverUrl.startsWith("https://")) {
     return coverUrl;
   }
-  const baseUrl = IMAGE_BASE_URL.endsWith('/') ? IMAGE_BASE_URL.slice(0, -1) : IMAGE_BASE_URL;
-  const path = coverUrl.startsWith('/') ? coverUrl : `/${coverUrl}`;
+  const baseUrl = IMAGE_BASE_URL.endsWith("/")
+    ? IMAGE_BASE_URL.slice(0, -1)
+    : IMAGE_BASE_URL;
+  const path = coverUrl.startsWith("/") ? coverUrl : `/${coverUrl}`;
   return `${baseUrl}${path}`;
 };
 
 const handleAvatarError = (e) => {
-  e.target.style.display = 'none';
+  e.target.style.display = "none";
 };
 
 const handleImageError = (e) => {
-  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3E暂无图片%3C/text%3E%3C/svg%3E';
-  e.target.style.objectFit = 'contain';
+  e.target.src =
+    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3E暂无图片%3C/text%3E%3C/svg%3E';
+  e.target.style.objectFit = "contain";
 };
 
 const openDetail = (item) => {
   router.push({
-    path: '/detail',
-    query: { id: item.id }
+    path: "/detail",
+    query: { id: item.id },
   });
 };
 
@@ -244,9 +334,9 @@ const loadUserWorks = async () => {
     isLoading.value = true;
     const response = await getNewsList();
     const allArticles = response.data.list || [];
-    userWorks.value = allArticles.filter(item => item.userName === userName);
+    userWorks.value = allArticles.filter((item) => item.userName === userName);
   } catch (error) {
-    console.error('获取用户作品失败:', error);
+    console.error("获取用户作品失败:", error);
   } finally {
     isLoading.value = false;
   }
@@ -265,7 +355,8 @@ onMounted(() => {
 .user-detail-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   padding-bottom: 70px;
 }
 
@@ -491,7 +582,11 @@ onMounted(() => {
 }
 
 .info-card {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.98) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.98) 100%
+  );
   backdrop-filter: blur(30px) saturate(180%);
   -webkit-backdrop-filter: blur(30px) saturate(180%);
   border-radius: 14px;

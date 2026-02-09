@@ -256,8 +256,8 @@
 import { ref, computed, onBeforeUnmount, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { showToast, showFailToast } from "vant";
-import { publishNews } from "../api/news.js";
-import { uploadImage } from "../api/tools";
+import { publishNews } from "../../api/news.js";
+import { uploadImage } from "../../api/tools";
 
 const router = useRouter();
 

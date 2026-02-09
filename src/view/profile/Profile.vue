@@ -32,22 +32,50 @@
         </div>
 
         <div class="stats-mini-section">
-          <div class="stat-mini-card">
-            <span class="stat-mini-value">{{ formatNumber(stats.published) }}</span>
-            <span class="stat-mini-label">发布</span>
+          <div class="stat-mini-card clickable" @click="goToFollowing">
+            <span class="stat-mini-value">{{ formatNumber(stats.following) }}</span>
+            <span class="stat-mini-label">关注</span>
           </div>
-          <div class="stat-mini-card">
-            <span class="stat-mini-value">{{ formatNumber(stats.views) }}</span>
-            <span class="stat-mini-label">浏览</span>
+          <div class="stat-mini-card clickable" @click="goToFollowers">
+            <span class="stat-mini-value">{{ formatNumber(stats.followers) }}</span>
+            <span class="stat-mini-label">粉丝</span>
           </div>
-          <div class="stat-mini-card">
-            <span class="stat-mini-value">{{ formatNumber(stats.likes) }}</span>
-            <span class="stat-mini-label">获赞</span>
+          <div class="stat-mini-card clickable" @click="goToCollect">
+            <span class="stat-mini-value">{{ formatNumber(stats.collects) }}</span>
+            <span class="stat-mini-label">收藏</span>
           </div>
         </div>
 
         <div class="works-section">
-          <h3 class="section-title">我的作品</h3>
+          <div class="works-header">
+            <h3 class="section-title">我的作品</h3>
+            <div class="works-stats">
+              <div class="works-stat-item clickable" @click="goToFollowing">
+                <svg class="works-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                <span>{{ formatNumber(stats.following) }}</span>
+              </div>
+              <div class="works-stat-item clickable" @click="goToFollowers">
+                <svg class="works-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>{{ formatNumber(stats.followers) }}</span>
+              </div>
+              <div class="works-stat-item clickable" @click="goToCollect">
+                <svg class="works-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span>{{ formatNumber(stats.collects) }}</span>
+              </div>
+            </div>
+          </div>
           <div class="works-container">
             <van-overlay :show="isLoading" class-name="loading-overlay">
               <div class="loading-wrapper">
@@ -164,9 +192,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { getUserInfo } from "../api/user.js";
-import { getUserNewsList } from "../api/news.js";
-import BottomTabBar from "../components/BottomTabBar.vue";
+import { getUserInfo } from "../../api/user.js";
+import { getUserNewsList } from "../../api/news.js";
+import BottomTabBar from "../../components/BottomTabBar.vue";
 import { showToast } from 'vant';
 
 const VITE_IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
@@ -198,9 +226,9 @@ const avatarStyle = computed(() => {
 });
 
 const stats = ref({
-  published: 0,
-  views: 0,
-  likes: 0,
+  following: 0,
+  followers: 0,
+  collects: 0,
 });
 // 作品数据
 const userArticle = ref([]);
@@ -223,12 +251,13 @@ const formatNumber = (num) => {
   return num.toString();
 };
 
-watch(userArticle, (newList) => {
-  const published = newList.total || 0;
-  const views = newList.totalViews || 0;
-  const likes = newList.totalLikes || 0;
-  stats.value = { published, views, likes };
-}, { immediate: true });
+watch(user, (newUser) => {
+  stats.value = {
+    following: newUser.following || 0,
+    followers: newUser.followers || 0,
+    collects: newUser.collects || 0,
+  };
+}, { immediate: true, deep: true });
 
 const updateLocalStorage = (newData) => {
   try {
@@ -390,6 +419,18 @@ const handleLogout = () => {
     showSettingsMenu.value = false;
     router.push("/login");
   }
+};
+
+const goToFollowing = () => {
+  router.push("/profile/following");
+};
+
+const goToFollowers = () => {
+  router.push("/profile/followers");
+};
+
+const goToCollect = () => {
+  router.push("/profile/collect");
 };
 </script>
 
@@ -563,6 +604,20 @@ const handleLogout = () => {
   gap: 4px;
 }
 
+.stat-mini-card.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.stat-mini-card.clickable:hover {
+  transform: translateY(-2px);
+  opacity: 0.8;
+}
+
+.stat-mini-card.clickable:active {
+  transform: translateY(0);
+}
+
 .stat-mini-value {
   font-size: 24px;
   font-weight: 700;
@@ -590,9 +645,56 @@ const handleLogout = () => {
   font-size: 18px;
   font-weight: 700;
   color: #202124;
-  margin: 0 0 16px 0;
+  margin: 0;
+}
+
+.works-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.works-header .section-title {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.works-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.works-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.works-stat-item.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.works-stat-item.clickable:hover {
+  opacity: 0.7;
+}
+
+.works-stat-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+.works-stat-item span {
+  font-weight: 600;
+  color: #202124;
 }
 
 .works-container {
@@ -877,6 +979,29 @@ const handleLogout = () => {
 
   .section-title {
     font-size: 16px;
+  }
+
+  .works-header {
+    padding-bottom: 10px;
+    gap: 12px;
+  }
+
+  .works-header .section-title {
+    font-size: 16px;
+  }
+
+  .works-stats {
+    gap: 12px;
+  }
+
+  .works-stat-item {
+    font-size: 12px;
+    gap: 3px;
+  }
+
+  .works-stat-icon {
+    width: 14px;
+    height: 14px;
   }
 
   .works-section {

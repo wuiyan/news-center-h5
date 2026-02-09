@@ -141,8 +141,8 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getUserNewsList } from "../api/news.js";
-import BottomTabBar from "../components/BottomTabBar.vue";
+import { getUserNewsList } from "../../api/news.js";
+import BottomTabBar from "../../components/BottomTabBar.vue";
 
 const router = useRouter();
 

@@ -1,17 +1,20 @@
 // 路由信息
 
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../view/Login.vue'
-import Register from '../view/Register.vue'
+import Login from '../view/auth/Login.vue'
+import Register from '../view/auth/Register.vue'
 import Index from '../view/Index.vue'
-import Profile from '../view/Profile.vue'
-import ProfileEdit from '../view/ProfileEdit.vue'
-import Settings from '../view/Settings.vue'
-import About from '../view/About.vue'
-import Detail from '../view/Detail.vue'
-import Publish from '../view/Publish.vue'
-import Articlestats from '../view/Articlestats.vue'
-import UserDetail from '../view/UserDetail.vue'
+import Profile from '../view/profile/Profile.vue'
+import ProfileEdit from '../view/profile/ProfileEdit.vue'
+import Settings from '../view/profile/Settings.vue'
+import FollowingList from '../view/profile/FollowingList.vue'
+import FollowersList from '../view/profile/FollowersList.vue'
+import CollectList from '../view/profile/CollectList.vue'
+import About from '../view/other/About.vue'
+import Detail from '../view/content/Detail.vue'
+import Publish from '../view/content/Publish.vue'
+import Articlestats from '../view/content/Articlestats.vue'
+import UserDetail from '../view/content/UserDetail.vue'
 
 const routes = [
     { path: '/', redirect: '/login' },
@@ -29,6 +32,21 @@ const routes = [
     {
         path: '/profile/edit',
         component: ProfileEdit,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/profile/following',
+        component: FollowingList,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/profile/followers',
+        component: FollowersList,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/profile/collect',
+        component: CollectList,
         meta: { requiresAuth: true }
     },
     {

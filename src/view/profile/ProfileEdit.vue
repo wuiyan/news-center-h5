@@ -75,8 +75,8 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { showToast } from "vant";
-import { updateUser } from "../api/user.js";
-import { uploadImage } from "../api/tools.js";
+import { updateUser } from "../../api/user.js";
+import { uploadImage } from "../../api/tools.js";
 const VITE_IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL; // 引入环境变量中的API基础地址
 
 const router = useRouter();

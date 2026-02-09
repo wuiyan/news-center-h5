@@ -327,7 +327,8 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { showToast, showImagePreview } from "vant";
-import { getNewsDetail, likeNews, collectNews } from "../api/news";
+import { getNewsDetail, likeNews, collectNews } from "../../api/news";
+import { followUser } from "../../api/user";
 
 const router = useRouter();
 const route = useRoute();
@@ -452,9 +453,22 @@ const handleAvatarError = (e) => {
 };
 
 // 切换关注状态
-const toggleFollow = () => {
-  isFollowing.value = !isFollowing.value;
-  showToast(isFollowing.value ? '关注成功' : '已取消关注');
+const toggleFollow = async () => {
+  const userId = detail.value.userId || detail.value.authorId;
+  
+  if (!userId) {
+    showToast("无法获取用户信息");
+    return;
+  }
+
+  try {
+    await followUser(userId);
+    isFollowing.value = !isFollowing.value;
+    showToast(isFollowing.value ? '关注成功' : '已取消关注');
+  } catch (error) {
+    console.error("关注操作失败:", error);
+    showToast("操作失败，请重试");
+  }
 };
 
 // 跳转到用户详情页

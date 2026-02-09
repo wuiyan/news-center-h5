@@ -40,3 +40,8 @@ export function publishNews(data) {
 export function getUserNewsList() {
     return request.get('/news/my-works');
 }
+
+// 我的收藏列表
+export function getCollectList() {
+    return request.get('/news/collect/list');
+}
