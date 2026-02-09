@@ -60,14 +60,14 @@
                 <div class="info-card">
                   <!-- 封面图片 -->
                   <div v-if="getCoverImage(item)" class="card-cover">
-                    <img 
-                      :src="getCoverImage(item)" 
+                    <img
+                      :src="getCoverImage(item)"
                       :alt="item.title"
                       class="cover-image"
                       @error="handleImageError"
                     />
                   </div>
-                  
+
                   <div class="card-content">
                     <!-- 分类标签胶囊 -->
                     <div
@@ -106,7 +106,7 @@
                           <svg
                             class="stat-icon"
                             viewBox="0 0 24 24"
-                            fill="none"
+                            :fill="item.isLiked ? 'currentColor' : 'none'"
                             stroke="currentColor"
                             stroke-width="2"
                           >
@@ -130,15 +130,18 @@
               >
                 <div class="info-card focus-card">
                   <!-- 焦点卡片封面图 -->
-                  <div v-if="getCoverImage(item)" class="card-cover focus-cover">
-                    <img 
-                      :src="getCoverImage(item)" 
+                  <div
+                    v-if="getCoverImage(item)"
+                    class="card-cover focus-cover"
+                  >
+                    <img
+                      :src="getCoverImage(item)"
                       :alt="item.title"
                       class="cover-image"
                       @error="handleImageError"
                     />
                   </div>
-                  
+
                   <div class="card-content">
                     <div class="focus-badge">🔥 焦点资讯</div>
                     <div
@@ -171,7 +174,7 @@
                           <svg
                             class="stat-icon"
                             viewBox="0 0 24 24"
-                            fill="none"
+                            :fill="item.isLiked ? 'currentColor' : 'none'"
                             stroke="currentColor"
                             stroke-width="2"
                           >
@@ -200,14 +203,14 @@
               <div class="info-card">
                 <!-- 封面图片 -->
                 <div v-if="getCoverImage(item)" class="card-cover">
-                  <img 
-                    :src="getCoverImage(item)" 
+                  <img
+                    :src="getCoverImage(item)"
                     :alt="item.title"
                     class="cover-image"
                     @error="handleImageError"
                   />
                 </div>
-                
+
                 <div class="card-content">
                   <div
                     class="card-category"
@@ -239,7 +242,7 @@
                         <svg
                           class="stat-icon"
                           viewBox="0 0 24 24"
-                          fill="none"
+                          :fill="item.isLiked ? 'currentColor' : 'none'"
                           stroke="currentColor"
                           stroke-width="2"
                         >
@@ -334,12 +337,12 @@ const loadNewsList = async () => {
 const handleSearch = async () => {
   const keyword = searchQuery.value.trim();
   isLoading.value = true;
-  
+
   try {
     const response = await searchNews(keyword);
     infoItems.value = response.data.list || [];
   } catch (err) {
-    console.error('搜索失败:', err);
+    console.error("搜索失败:", err);
   } finally {
     isLoading.value = false;
   }
@@ -347,7 +350,7 @@ const handleSearch = async () => {
 
 // 清空搜索
 const clearSearch = () => {
-  searchQuery.value = '';
+  searchQuery.value = "";
   loadNewsList();
 };
 
@@ -409,43 +412,46 @@ const getCategoryColor = (categoryId) => {
 // 获取封面图片 - 从cover字符串中提取第一张图片
 const getCoverImage = (item) => {
   if (!item.cover) return null;
-  
-  let coverUrl = '';
-  
+
+  let coverUrl = "";
+
   // 处理cover是字符串的情况（逗号分隔）
-  if (typeof item.cover === 'string') {
+  if (typeof item.cover === "string") {
     // 去除首尾空格，按逗号分割，过滤空值
     const coverArray = item.cover
-      .split(',')
-      .map(url => url.trim())
-      .filter(url => url.length > 0);
-    
+      .split(",")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
+
     if (coverArray.length === 0) return null;
     coverUrl = coverArray[0];
   } else {
     return null;
   }
-  
+
   // 如果没有URL，返回null
   if (!coverUrl) return null;
-  
+
   // 如果已经是完整URL，直接返回
-  if (coverUrl.startsWith('http://') || coverUrl.startsWith('https://')) {
+  if (coverUrl.startsWith("http://") || coverUrl.startsWith("https://")) {
     return coverUrl;
   }
-  
+
   // 拼接基础URL
-  const baseUrl = IMAGE_BASE_URL.endsWith('/') ? IMAGE_BASE_URL.slice(0, -1) : IMAGE_BASE_URL;
-  const path = coverUrl.startsWith('/') ? coverUrl : `/${coverUrl}`;
-  
+  const baseUrl = IMAGE_BASE_URL.endsWith("/")
+    ? IMAGE_BASE_URL.slice(0, -1)
+    : IMAGE_BASE_URL;
+  const path = coverUrl.startsWith("/") ? coverUrl : `/${coverUrl}`;
+
   return `${baseUrl}${path}`;
 };
 
 // 图片加载失败处理
 const handleImageError = (e) => {
   // 可以设置一个默认图片
-  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3E暂无图片%3C/text%3E%3C/svg%3E';
-  e.target.style.objectFit = 'contain';
+  e.target.src =
+    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18"%3E暂无图片%3C/text%3E%3C/svg%3E';
+  e.target.style.objectFit = "contain";
 };
 
 const goToProfile = () => {
