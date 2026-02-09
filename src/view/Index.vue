@@ -262,6 +262,54 @@
       </div>
     </div>
 
+    <!-- 回到顶部火箭按钮 -->
+    <div
+      class="rocket-button"
+      :class="{ show: showRocket }"
+      @click="scrollToTop"
+    >
+      <svg
+        class="rocket-icon"
+        viewBox="0 0 64 64"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <!-- 火箭主体 -->
+        <path
+          fill="#FF6B6B"
+          d="M32 4c-2 8-6 14-10 20s-8 10-8 18c0 6 4 10 10 10h16c6 0 10-4 10-10 0-8-4-12-8-18s-8-12-10-20z"
+        />
+        <!-- 火箭窗口 -->
+        <circle fill="#FFF" cx="32" cy="24" r="6" opacity="0.9" />
+        <!-- 火箭翅膀左 -->
+        <path
+          fill="#EE5A5A"
+          d="M14 44l-6 12 12-4c-2-4-4-6-6-8z"
+        />
+        <!-- 火箭翅膀右 -->
+        <path
+          fill="#EE5A5A"
+          d="M50 44l6 12-12-4c2-4 4-6 6-8z"
+        />
+        <!-- 火箭火焰 -->
+        <path
+          fill="#FFC107"
+          d="M26 58c2 4 4 4 6 4s4 0 6-4c-2-2-10-2-12 0z"
+          class="flame"
+        >
+          <animate
+            attributeName="d"
+            dur="0.3s"
+            repeatCount="indefinite"
+            values="
+              M26 58c2 4 4 4 6 4s4 0 6-4c-2-2-10-2-12 0z;
+              M24 60c3 5 7 5 8 5s5 0 8-5c-3-2-13-2-16 0z;
+              M26 58c2 4 4 4 6 4s4 0 6-4c-2-2-10-2-12 0z
+            "
+          />
+        </path>
+      </svg>
+    </div>
+
     <!-- 底部Tab栏 -->
     <BottomTabBar />
   </div>
@@ -271,13 +319,16 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getNewsList, getNewsCategories, searchNews } from "../api/news.js";
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import BottomTabBar from "../components/BottomTabBar.vue";
 
 // 引入环境变量中的API基础地址
 const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const router = useRouter();
+
+// 回到顶部火箭按钮显示状态
+const showRocket = ref(false);
 
 // 分类数据
 const categories = ref([
@@ -303,12 +354,6 @@ const searchQuery = ref("");
 
 // 获取信息列表
 const infoItems = ref([]);
-
-// 挂载时获取信息列表
-onMounted(() => {
-  loadNewsCategories();
-  loadNewsList();
-});
 
 // 获取信息分类
 const loadNewsCategories = async () => {
@@ -496,6 +541,32 @@ const handleImageError = (e) => {
 const goToProfile = () => {
   router.push("/profile");
 };
+
+// 监听滚动事件，控制火箭按钮显示/隐藏
+const handleScroll = () => {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  showRocket.value = scrollTop > 300; // 滚动超过300px显示按钮
+};
+
+// 回到顶部
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+
+// 组件挂载时添加滚动监听
+onMounted(() => {
+  loadNewsCategories();
+  loadNewsList();
+  window.addEventListener('scroll', handleScroll);
+});
+
+// 组件卸载时移除滚动监听
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <style scoped>
@@ -1007,5 +1078,88 @@ body {
   padding-bottom: calc(64px + env(safe-area-inset-bottom) + 20px);
   /* 创建BFC防止margin collapse */
   overflow-x: hidden;
+}
+
+/* ==================== 回到顶部火箭按钮 ==================== */
+.rocket-button {
+  position: fixed;
+  right: 20px;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%);
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px) scale(0.8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 999;
+}
+
+.rocket-button.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.rocket-button:hover {
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 8px 30px rgba(255, 107, 107, 0.6);
+}
+
+.rocket-button:active {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.rocket-icon {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.3s ease;
+}
+
+.rocket-button:hover .rocket-icon {
+  transform: translateX(-2px) rotate(-10deg);
+}
+
+.rocket-button.show .rocket-icon {
+  animation: rocketShake 2s ease-in-out infinite;
+}
+
+@keyframes rocketShake {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  10%, 90% {
+    transform: translateX(-1px) rotate(-1deg);
+  }
+  20%, 80% {
+    transform: translateX(1px) rotate(1deg);
+  }
+  30%, 50%, 70% {
+    transform: translateX(-2px) rotate(-2deg);
+  }
+  40%, 60% {
+    transform: translateX(2px) rotate(2deg);
+  }
+}
+
+/* 响应式适配 */
+@media (max-width: 480px) {
+  .rocket-button {
+    right: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    width: 50px;
+    height: 50px;
+  }
+
+  .rocket-icon {
+    width: 28px;
+    height: 28px;
+  }
 }
 </style>
