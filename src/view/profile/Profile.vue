@@ -356,6 +356,9 @@ const loadUserData = async () => {
             email: (userInfo.email ?? "").trim() || user.value.email,
             password: userInfo.password || user.value.password,
             avatar: userInfo.avatar || user.value.avatar,
+            collects: userInfo.collectCount || 0,
+            following: userInfo.followingCount || 0,
+            followers: userInfo.followerCount || 0,
           };
           user.value = mappedData;
           updateLocalStorage(mappedData);
