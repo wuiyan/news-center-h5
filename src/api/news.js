@@ -35,3 +35,8 @@ export function collectNews(id) {
 export function publishNews(data) {
     return request.post('/news/publish', data);
 }
+
+// 获取用户的发布信息列表
+export function getUserNewsList() {
+    return request.get('/news/my-works');
+}

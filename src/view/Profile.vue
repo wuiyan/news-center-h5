@@ -29,7 +29,7 @@
         </div>
 
         <div class="stats-section">
-          <div class="stats-card">
+          <div class="stats-card" @click="goToWorks">
             <div class="stat-item">
               <span class="stat-icon">📊</span>
               <span class="stat-value">{{
@@ -85,14 +85,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { getUserInfo } from "../api/user.js";
+import { getUserNewsList } from "../api/news.js";
 import BottomTabBar from "../components/BottomTabBar.vue"; // 引入组件
 
 
 const router = useRouter();
-
+// 用户信息列表
+const userNews = ref([]);
 const user = ref({
   id: null,
   name: "",
@@ -130,39 +132,14 @@ const formatNumber = (num) => {
 };
 
 // 获取统计数据
-const loadStatsData = () => {
-  const statsData = localStorage.getItem("userStats");
-  if (statsData) {
-    try {
-      const parsed = JSON.parse(statsData);
-      stats.value = {
-        published: parsed.published || 0,
-        views: parsed.views || 0,
-        likes: parsed.likes || 0,
-      };
-    } catch (e) {
-      console.error("解析统计数据失败:", e);
-      // 保持默认值 0
-    }
-  } else {
-    // 如果没有统计数据，设置为 0
-    stats.value = {
-      published: 0,
-      views: 0,
-      likes: 0,
-    };
-  }
-};
+watch(userNews, (newNews) => {
+  const published = newNews.total || 0;
+  const views = newNews.totalViews || 0;
+  const likes = newNews.totalLikes || 0;
+  stats.value = { published, views, likes };
+}, { immediate: true });
 
-// 更新统计数据（可以调用此方法来更新统计数据）
-const updateStats = (newStats) => {
-  stats.value = {
-    published: newStats.published || stats.value.published,
-    views: newStats.views || stats.value.views,
-    likes: newStats.likes || stats.value.likes,
-  };
-  localStorage.setItem("userStats", JSON.stringify(stats.value));
-};
+
 
 // 将用户信息合并到 localStorage.user
 const updateLocalStorage = (newData) => {
@@ -178,7 +155,7 @@ const updateLocalStorage = (newData) => {
 
 onMounted(() => {
   loadUserData();
-  loadStatsData();
+  getUserNews();
 });
 
 const loadUserData = async () => {
@@ -249,12 +226,27 @@ const loadUserData = async () => {
   }
 };
 
+// 获取用户的发布信息
+const getUserNews = async () => {
+  try {
+    const response = await getUserNewsList();
+    userNews.value = response.data || [];
+  } catch (error) {
+    console.error("获取用户发布信息失败:", error);
+    userNews.value = [];
+  }
+};
+
 const goToHome = () => {
   router.push("/index");
 };
 
 const goToEdit = () => {
   router.push("/profile/edit");
+};
+
+const goToWorks = () => {
+  router.push("/profile/articlestats");
 };
 
 const goToSettings = () => {

@@ -10,6 +10,7 @@ import Settings from '../view/Settings.vue'
 import About from '../view/About.vue'
 import Detail from '../view/Detail.vue'
 import Publish from '../view/Publish.vue'
+import Articlestats from '../view/Articlestats.vue'
 
 const routes = [
     { path: '/', redirect: '/login' },
@@ -27,6 +28,10 @@ const routes = [
         path: '/profile/edit',
         component: ProfileEdit,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/profile/articlestats',
+        component: Articlestats
     },
     {
         path: '/settings',
