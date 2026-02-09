@@ -18,15 +18,18 @@
 
         <div class="form-section">
           <div class="avatar-upload">
-            <div class="avatar-preview" :style="form.avatar
-                ? {
-                  backgroundImage: `url(${form.avatar})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }
-                : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }
-              ">
-              {{ form.name?.charAt(0) || "👤" }}
+            <div
+              class="avatar-preview"
+              :style="
+                form.avatar
+                  ? {
+                      backgroundImage: `url(${form.avatar.startsWith('data:') ? form.avatar : VITE_IMAGE_BASE_URL + form.avatar})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }
+                  : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }
+              "
+            >
             </div>
             <div class="upload-btn-wrapper">
               <button type="button" class="upload-btn" @click="triggerFileInput">
@@ -74,6 +77,7 @@ import { useRouter } from "vue-router";
 import { showToast } from "vant";
 import { updateUser } from "../api/user.js";
 import { uploadImage } from "../api/tools.js";
+const VITE_IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL; // 引入环境变量中的API基础地址
 
 const router = useRouter();
 const fileInput = ref(null);

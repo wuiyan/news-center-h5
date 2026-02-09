@@ -7,7 +7,7 @@
             <div class="avatar" :style="avatarStyle">
               <template v-if="user.avatar">
                 <img
-                  :src="user.avatar"
+                  :src="user.avatar.startsWith('data:') ? user.avatar : VITE_IMAGE_BASE_URL + user.avatar"
                   :alt="user.name"
                   class="avatar-img"
                 />
@@ -90,6 +90,7 @@ import { useRouter } from "vue-router";
 import { getUserInfo } from "../api/user.js";
 import { getUserNewsList } from "../api/news.js";
 import BottomTabBar from "../components/BottomTabBar.vue"; // 引入组件
+const VITE_IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_BASE_URL; // 引入环境变量中的API基础地址
 
 
 const router = useRouter();
