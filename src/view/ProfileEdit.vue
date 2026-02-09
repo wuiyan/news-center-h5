@@ -2,13 +2,7 @@
   <div class="profile-edit-page">
     <div class="nav-header global-nav">
       <div class="back-btn" @click="goBack">
-        <svg
-          class="back-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-        >
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </div>
@@ -24,36 +18,22 @@
 
         <div class="form-section">
           <div class="avatar-upload">
-            <div
-              class="avatar-preview"
-              :style="
-                form.avatar
-                  ? {
-                      backgroundImage: `url(${form.avatar})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }
-                  : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }
-              "
-            >
+            <div class="avatar-preview" :style="form.avatar
+                ? {
+                  backgroundImage: `url(${form.avatar})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }
+                : { background: 'linear-gradient(135deg, #667eea, #764ba2)' }
+              ">
               {{ form.name?.charAt(0) || "👤" }}
             </div>
             <div class="upload-btn-wrapper">
-              <button
-                type="button"
-                class="upload-btn"
-                @click="triggerFileInput"
-              >
+              <button type="button" class="upload-btn" @click="triggerFileInput">
                 <span class="upload-icon">📷</span>
                 选择图片
               </button>
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/*"
-                @change="handleFileChange"
-                hidden
-              />
+              <input ref="fileInput" type="file" accept="image/*" @change="handleFileChange" hidden />
             </div>
           </div>
 
@@ -62,14 +42,8 @@
               <span class="label-icon">👤</span>
               昵称
             </label>
-            <input
-              v-model="form.name"
-              type="text"
-              class="custom-input"
-              placeholder="请输入昵称"
-              :class="{ error: errors.name }"
-              @input="validateField('name')"
-            />
+            <input v-model="form.name" type="text" class="custom-input" placeholder="请输入昵称"
+              :class="{ error: errors.name }" @input="validateField('name')" />
             <span v-if="errors.name" class="error-msg">{{ errors.name }}</span>
           </div>
 
@@ -78,25 +52,14 @@
               <span class="label-icon">✉️</span>
               邮箱
             </label>
-            <input
-              v-model="form.email"
-              type="email"
-              class="custom-input"
-              placeholder="请输入邮箱"
-              :class="{ error: errors.email }"
-              @input="validateField('email')"
-            />
+            <input v-model="form.email" type="email" class="custom-input" placeholder="请输入邮箱"
+              :class="{ error: errors.email }" @input="validateField('email')" />
             <span v-if="errors.email" class="error-msg">{{
               errors.email
             }}</span>
           </div>
 
-          <button
-            type="button"
-            class="save-btn"
-            @click="handleSave"
-            :disabled="isSaving"
-          >
+          <button type="button" class="save-btn" @click="handleSave" :disabled="isSaving">
             {{ isSaving ? "保存中..." : "保存更改" }}
           </button>
         </div>
@@ -329,19 +292,20 @@ const handleSave = async () => {
 }
 
 .profile-edit-page {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-size: cover;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  padding-bottom: 20px;
+  overflow: hidden;
+  /* 禁止整体滚动 */
 }
 
 .page-container {
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
-  margin-top: 72px; /* 给固定顶部导航预留空间 */
+  margin-top: 72px;
+  /* 给固定顶部导航预留空间 */
   padding: 8px 16px;
 }
 
@@ -362,6 +326,7 @@ const handleSave = async () => {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
