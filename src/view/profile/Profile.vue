@@ -50,29 +50,27 @@
           <div class="works-header">
             <h3 class="section-title">我的作品</h3>
             <div class="works-stats">
-              <div class="works-stat-item clickable" @click="goToFollowing">
+              <div class="works-stat-item">
                 <svg class="works-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="20" y1="8" x2="20" y2="14"></line>
-                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg>
-                <span>{{ formatNumber(stats.following) }}</span>
+                <span>{{ formatNumber(stats.published) }}</span>
               </div>
-              <div class="works-stat-item clickable" @click="goToFollowers">
+              <div class="works-stat-item">
                 <svg class="works-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
                 </svg>
-                <span>{{ formatNumber(stats.followers) }}</span>
+                <span>{{ formatNumber(stats.views) }}</span>
               </div>
-              <div class="works-stat-item clickable" @click="goToCollect">
+              <div class="works-stat-item">
                 <svg class="works-stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-                <span>{{ formatNumber(stats.collects) }}</span>
+                <span>{{ formatNumber(stats.likes) }}</span>
               </div>
             </div>
           </div>
@@ -226,6 +224,9 @@ const avatarStyle = computed(() => {
 });
 
 const stats = ref({
+  published: 0,
+  views: 0,
+  likes: 0,
   following: 0,
   followers: 0,
   collects: 0,
@@ -252,12 +253,16 @@ const formatNumber = (num) => {
 };
 
 watch(user, (newUser) => {
-  stats.value = {
-    following: newUser.following || 0,
-    followers: newUser.followers || 0,
-    collects: newUser.collects || 0,
-  };
+  stats.value.following = newUser.following || 0;
+  stats.value.followers = newUser.followers || 0;
+  stats.value.collects = newUser.collects || 0;
 }, { immediate: true, deep: true });
+
+watch(userArticle, (newList) => {
+  stats.value.published = newList.total || 0;
+  stats.value.views = newList.totalViews || 0;
+  stats.value.likes = newList.totalLikes || 0;
+}, { immediate: true });
 
 const updateLocalStorage = (newData) => {
   try {
@@ -675,15 +680,6 @@ const goToCollect = () => {
   gap: 4px;
   font-size: 13px;
   color: #6b7280;
-}
-
-.works-stat-item.clickable {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.works-stat-item.clickable:hover {
-  opacity: 0.7;
 }
 
 .works-stat-icon {
