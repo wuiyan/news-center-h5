@@ -106,26 +106,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { showToast } from 'vant';
-import { updateUser } from '../api/user.js';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { showToast } from "vant";
+import { updateUser } from "../api/user.js";
+import { uploadImage } from "../api/tools.js";
 
 const router = useRouter();
 const fileInput = ref(null);
+const selectedFile = ref(null);
 
 const form = ref({
   id: null,
-  name: '',
-  email: '',
-  password: '',
-  avatar: '' // 占位头像数据
+  name: "",
+  email: "",
+  password: "",
+  avatar: "",
 });
 
-
 const errors = ref({
-  name: '',
-  email: ''
+  name: "",
+  email: "",
 });
 
 const isSaving = ref(false);
@@ -135,38 +136,39 @@ onMounted(() => {
 });
 
 const loadUserData = () => {
-  const userData = localStorage.getItem('user');
+  const userData = localStorage.getItem("user");
   if (userData) {
     try {
       const user = JSON.parse(userData);
       form.value = {
         id: user.id || null,
-        name: user.name || '',
-        email: user.email || '',
-        password: user.password || '',
-        avatar: user.avatar || user.avatarUrl || ''
+        name: user.name || "",
+        email: user.email || "",
+        password: user.password || "",
+        avatar: user.avatar || "",
       };
+      selectedFile.value = null;
     } catch (e) {
-      console.error('解析用户数据失败:', e);
+      console.error("解析用户数据失败:", e);
     }
   }
 };
 
 const validateField = (field) => {
-  if (field === 'name') {
+  if (field === "name") {
     if (!form.value.name.trim()) {
-      errors.value.name = '昵称不能为空';
+      errors.value.name = "昵称不能为空";
       return false;
     }
     if (form.value.name.length < 2) {
-      errors.value.name = '昵称至少2个字符';
+      errors.value.name = "昵称至少2个字符";
       return false;
     }
     if (form.value.name.length > 20) {
-      errors.value.name = '昵称不能超过20个字符';
+      errors.value.name = "昵称不能超过20个字符";
       return false;
     }
-    errors.value.name = '';
+    errors.value.name = "";
   }
 
   // if (field === 'email') {
@@ -186,6 +188,9 @@ const validateField = (field) => {
 };
 
 const triggerFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.value = "";
+  }
   fileInput.value?.click();
 };
 
@@ -193,15 +198,17 @@ const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  if (!file.type.startsWith('image/')) {
-    showToast('请选择图片文件');
+  if (!file.type.startsWith("image/")) {
+    showToast("请选择图片文件");
     return;
   }
 
   if (file.size > 2 * 1024 * 1024) {
-    showToast('图片大小不能超过2MB');
+    showToast("图片大小不能超过2MB");
     return;
   }
+
+  selectedFile.value = file;
 
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -211,7 +218,7 @@ const handleFileChange = (event) => {
 };
 
 const validateAll = () => {
-  return validateField('name') && validateField('email');
+  return validateField("name") && validateField("email");
 };
 
 const goBack = () => {
@@ -220,83 +227,94 @@ const goBack = () => {
 
 const handleSave = async () => {
   if (!validateAll()) {
-    showToast('请检查输入内容');
+    showToast("请检查输入内容");
     return;
   }
 
   isSaving.value = true;
 
   try {
+    let avatarUrl = form.value.avatar;
+
+    if (selectedFile.value) {
+      showToast("正在上传头像...");
+
+      try {
+        const uploadRes = await uploadImage(selectedFile.value);
+        avatarUrl = uploadRes.data;
+        if (!avatarUrl) {
+          throw new Error("上传失败，未能获取图片URL");
+        }
+      } catch (uploadError) {
+        console.error("上传头像失败:", uploadError);
+        showToast("头像上传失败: " + (uploadError.message || "请重试"));
+        return;
+      }
+    }
+
     const payload = {
       id: form.value.id,
       name: form.value.name.trim(),
       email: form.value.email.trim(),
-      avatar: form.value.avatar || undefined
+      avatar: avatarUrl,
     };
 
     const res = await updateUser(payload);
 
-    // 统一提取数据和判断成功
     let returned = null;
     let isSuccess = false;
-    let errorMsg = '保存失败，请重试';
+    let errorMsg = "保存失败，请重试";
 
     if (res?.code === 200) {
-      // 标准格式 {code, data, msg}
       returned = res.data;
       isSuccess = true;
     } else if (res && !res.code) {
-      // 纯数据格式（拦截器彻底解包）
       returned = res;
       isSuccess = true;
     } else {
-      // 失败情况
-      errorMsg = res?.msg || '保存失败，请重试';
+      errorMsg = res?.msg || "保存失败，请重试";
     }
 
     if (!isSuccess || !returned) {
       showToast(errorMsg);
-      return;  // 失败直接返回，不执行后续
+      return;
     }
 
-    console.log('返回数据:', returned);
+    console.log("返回数据:", returned);
 
-    // 合并到本地缓存（只有成功才执行到这里）
-    const raw = localStorage.getItem('user');
+    const raw = localStorage.getItem("user");
     let localObj = {};
     if (raw) {
-      try { 
-        localObj = JSON.parse(raw); 
-      } catch (_) { 
-        localObj = typeof raw === 'string' ? { id: raw } : {}; 
+      try {
+        localObj = JSON.parse(raw);
+      } catch (_) {
+        localObj = typeof raw === "string" ? { id: raw } : {};
       }
     }
 
     const updatedFields = {
       ...(payload.name !== undefined && { name: payload.name }),
       ...(payload.email !== undefined && { email: payload.email }),
-      ...(payload.avatar !== undefined && { avatar: payload.avatar })
+      ...(payload.avatar !== undefined && { avatar: payload.avatar }),
     };
 
-    // 优先使用服务器返回的值
     if (returned.name !== undefined) updatedFields.name = returned.name;
     if (returned.email !== undefined) updatedFields.email = returned.email;
     if (returned.avatar !== undefined) updatedFields.avatar = returned.avatar;
 
-    const merged = { 
-      ...localObj, 
-      id: payload.id ?? localObj.id, 
-      ...updatedFields 
+    const merged = {
+      ...localObj,
+      id: payload.id ?? localObj.id,
+      ...updatedFields,
     };
 
-    localStorage.setItem('user', JSON.stringify(merged));
+    localStorage.setItem("user", JSON.stringify(merged));
 
-    showToast('保存成功');
-    router.push('/profile');
-
+    showToast("保存成功");
+    router.push("/profile");
   } catch (e) {
-    console.error('保存失败:', e);
-    showToast('保存失败，请重试');
+    console.error("保存失败:", e);
+    showToast("保存失败，请重试");
   } finally {
     isSaving.value = false;
   }

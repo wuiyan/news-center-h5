@@ -5,9 +5,9 @@
         <div class="user-info-card">
           <div class="avatar-wrapper">
             <div class="avatar" :style="avatarStyle">
-              <template v-if="user.avatarUrl">
+              <template v-if="user.avatar">
                 <img
-                  :src="user.avatarUrl"
+                  :src="user.avatar"
                   :alt="user.name"
                   class="avatar-img"
                 />
@@ -100,10 +100,11 @@ const user = ref({
   name: "",
   email: "",
   password: "",
+  avatar: "",
 });
 
 const avatarStyle = computed(() => {
-  if (user.value.avatarUrl) {
+  if (user.value.avatar) {
     return {
       background: "#f0f2f5",
     };
@@ -169,14 +170,12 @@ const loadUserData = async () => {
         name: parsed.name?.trim() || "未命名用户",
         email: parsed.email?.trim() || "",
         password: parsed.password || "",
+        avatar: parsed.avatar || "",
       };
 
       // 异步请求后端获取实时用户信息并更新（若接口可用）
       try {
         const remote = await getUserInfo();
-
-        // 情况1：拦截器只返回 response.data（即 {code, data, msg}）
-        // 情况2：拦截器进一步解包，直接返回 data 内容
 
         // 统一处理：优先取 remote.data，如果已经是纯数据则直接用
         const userInfo = remote?.data ?? remote;
@@ -190,6 +189,7 @@ const loadUserData = async () => {
             name: userInfo.name?.trim() || user.value.name,
             email: (userInfo.email ?? "").trim() || user.value.email,
             password: userInfo.password || user.value.password,
+            avatar: userInfo.avatar || user.value.avatar,
           };
           user.value = mappedData;
           // 同步到本地存储（会排除敏感字段）
@@ -208,7 +208,7 @@ const loadUserData = async () => {
         id: "",
         name: "未命名用户",
         email: "",
-        avatarUrl: "",
+        avatar: "",
         avatarColor: "",
         bio: "",
       };
@@ -219,7 +219,7 @@ const loadUserData = async () => {
       id: "",
       name: "未命名用户",
       email: "",
-      avatarUrl: "",
+      avatar: "",
       avatarColor: "",
       bio: "",
     };
