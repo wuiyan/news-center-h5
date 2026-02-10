@@ -3,27 +3,14 @@
     <!-- 顶部导航栏 -->
     <div class="detail-header">
       <div class="back-btn">
-        <svg
-          class="back-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-          @click="goBack"
-        >
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" @click="goBack">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </div>
       <div class="header-title">资讯详情</div>
       <div class="header-right">
-        <svg
-          class="share-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          @click="toggleShare"
-        >
+        <svg class="share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          @click="toggleShare">
           <circle cx="18" cy="5" r="3" />
           <circle cx="6" cy="12" r="3" />
           <circle cx="18" cy="19" r="3" />
@@ -39,31 +26,19 @@
         <div class="title-section">
           <!-- 用户信息区域 -->
           <div class="user-info-row">
-            <img
-              v-if="detail.userAvatar"
-              :src="getUserAvatar()"
-              :alt="detail.userName"
-              class="author-avatar"
-              @error="handleAvatarError"
-              @click="goToUserDetail"
-            />
-            <div v-else class="avatar-placeholder" @click="goToUserDetail">{{ (detail.userName || '匿名').charAt(0) }}</div>
+            <img v-if="detail.userAvatar" :src="getUserAvatar()" :alt="detail.userName" class="author-avatar"
+              @error="handleAvatarError" @click="goToUserDetail" />
+            <div v-else class="avatar-placeholder" @click="goToUserDetail">{{ (detail.userName || '匿名').charAt(0) }}
+            </div>
             <span class="author-name">{{ detail.userName || '匿名用户' }}</span>
-            <button
-              class="follow-btn"
-              :class="{ following: isFollowing }"
-              @click="toggleFollow"
-            >
+            <button class="follow-btn" :class="{ following: isFollowing }" @click="toggleFollow">
               {{ isFollowing ? '已关注' : '+ 关注' }}
             </button>
           </div>
 
           <h1 class="detail-title">{{ detail.title }}</h1>
           <div class="meta-info">
-            <div
-              class="category-tag"
-              :style="{ background: getCategoryColor(detail.category) }"
-            >
+            <div class="category-tag" :style="{ background: getCategoryColor(detail.category) }">
               {{ getCategoryName(detail.category) }}
             </div>
             <span class="dot-separator">·</span>
@@ -75,41 +50,22 @@
         <div v-if="imageList.length > 0" class="gallery-section">
           <!-- 单图模式 -->
           <div v-if="imageList.length === 1" class="single-image-wrapper">
-            <img
-              :src="imageList[0]"
-              class="detail-image"
-              @click="previewImage(0)"
-              alt="详情图片"
-            />
+            <img :src="imageList[0]" class="detail-image" @click="previewImage(0)" alt="详情图片" />
           </div>
 
           <!-- 多图轮播模式 -->
           <div v-else class="image-carousel">
             <div class="carousel-container" ref="carouselRef">
-              <div
-                v-for="(img, index) in imageList"
-                :key="index"
-                class="carousel-item"
-                :style="{ transform: `translateX(${-currentIndex * 100}%)` }"
-              >
-                <img
-                  :src="img"
-                  class="carousel-image"
-                  @click="previewImage(index)"
-                  alt="详情图片"
-                />
+              <div v-for="(img, index) in imageList" :key="index" class="carousel-item"
+                :style="{ transform: `translateX(${-currentIndex * 100}%)` }">
+                <img :src="img" class="carousel-image" @click="previewImage(index)" alt="详情图片" />
               </div>
             </div>
 
             <!-- 指示器 -->
             <div class="carousel-indicators">
-              <span
-                v-for="(_, index) in imageList"
-                :key="index"
-                class="indicator-dot"
-                :class="{ active: currentIndex === index }"
-                @click="goToSlide(index)"
-              />
+              <span v-for="(_, index) in imageList" :key="index" class="indicator-dot"
+                :class="{ active: currentIndex === index }" @click="goToSlide(index)" />
             </div>
 
             <!-- 计数器 -->
@@ -129,25 +85,12 @@
 
         <!-- 底部操作栏 -->
         <div class="action-bar">
-          <div
-            class="action-item"
-            :class="{ active: hasLiked }"
-            @click="toggleLike"
-          >
-            <div
-              class="action-icon-wrapper"
-              :class="{ 'like-anim': likeAnimating }"
-            >
-              <svg
-                class="action-icon"
-                viewBox="0 0 24 24"
-                :fill="hasLiked ? 'currentColor' : 'none'"
-                stroke="currentColor"
-                stroke-width="2"
-              >
+          <div class="action-item" :class="{ active: hasLiked }" @click="toggleLike">
+            <div class="action-icon-wrapper" :class="{ 'like-anim': likeAnimating }">
+              <svg class="action-icon" viewBox="0 0 24 24" :fill="hasLiked ? 'currentColor' : 'none'"
+                stroke="currentColor" stroke-width="2">
                 <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="action-count">{{ likeCount }}</span>
@@ -156,16 +99,9 @@
 
           <div class="action-item" @click="focusComment">
             <div class="action-icon-wrapper">
-              <svg
-                class="action-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
+              <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path
-                  d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                />
+                  d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
               </svg>
             </div>
             <span class="action-count">{{ detail.comments || 0 }}</span>
@@ -173,20 +109,14 @@
           </div>
 
           <div class="action-item" @click="toggleCollect">
-            <div
-              class="action-icon-wrapper"
-              :class="{ 'collect-anim': collectAnimating }"
-            >
-              <svg
-                class="action-icon"
-                viewBox="0 0 24 24"
-                :fill="hasCollected ? 'currentColor' : 'none'"
-                stroke="currentColor"
-                stroke-width="2"
-              >
+            <div class="action-icon-wrapper" :class="{ 'collect-anim': collectAnimating }">
+              <svg class="action-icon" viewBox="0 0 24 24" :fill="hasCollected ? 'currentColor' : 'none'"
+                stroke="currentColor" stroke-width="2">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
               </svg>
             </div>
+            <!-- <span class="action-count">{{ detail.collectCount || 0 }}</span> -->
+            <span class="action-count">{{ collectCount }}</span>
             <span class="action-label">{{
               hasCollected ? "已收藏" : "收藏"
             }}</span>
@@ -202,13 +132,8 @@
             <span class="comment-count">({{ commentList.length }})</span>
           </h3>
           <div class="sort-tabs">
-            <span
-              v-for="tab in sortTabs"
-              :key="tab.value"
-              class="sort-tab"
-              :class="{ active: currentSort === tab.value }"
-              @click="currentSort = tab.value"
-            >
+            <span v-for="tab in sortTabs" :key="tab.value" class="sort-tab"
+              :class="{ active: currentSort === tab.value }" @click="currentSort = tab.value">
               {{ tab.label }}
             </span>
           </div>
@@ -217,19 +142,10 @@
         <!-- 评论输入框 -->
         <div class="comment-input-area" id="commentInput">
           <div class="input-wrapper">
-            <input
-              v-model="newComment"
-              type="text"
-              placeholder="写下你的评论..."
-              class="comment-input"
-              @keyup.enter="submitComment"
-            />
-            <button
-              class="submit-btn"
-              :class="{ active: newComment.trim() }"
-              @click="submitComment"
-              :disabled="!newComment.trim()"
-            >
+            <input v-model="newComment" type="text" placeholder="写下你的评论..." class="comment-input"
+              @keyup.enter="submitComment" />
+            <button class="submit-btn" :class="{ active: newComment.trim() }" @click="submitComment"
+              :disabled="!newComment.trim()">
               发送
             </button>
           </div>
@@ -237,11 +153,7 @@
 
         <!-- 评论列表 -->
         <div class="comments-list">
-          <div
-            v-for="comment in sortedComments"
-            :key="comment.id"
-            class="comment-item"
-          >
+          <div v-for="comment in sortedComments" :key="comment.id" class="comment-item">
             <img :src="comment.avatar" class="comment-avatar" alt="头像" />
             <div class="comment-body">
               <div class="comment-header">
@@ -250,35 +162,18 @@
               </div>
               <p class="comment-text">{{ comment.content }}</p>
               <div class="comment-actions">
-                <span
-                  class="comment-action"
-                  :class="{ active: comment.isLiked }"
-                  @click="toggleCommentLike(comment)"
-                >
-                  <svg
-                    class="action-icon-small"
-                    viewBox="0 0 24 24"
-                    :fill="comment.isLiked ? 'currentColor' : 'none'"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
+                <span class="comment-action" :class="{ active: comment.isLiked }" @click="toggleCommentLike(comment)">
+                  <svg class="action-icon-small" viewBox="0 0 24 24" :fill="comment.isLiked ? 'currentColor' : 'none'"
+                    stroke="currentColor" stroke-width="2">
                     <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                    />
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
                   {{ comment.likes || "赞" }}
                 </span>
                 <span class="comment-action" @click="replyTo(comment)">
-                  <svg
-                    class="action-icon-small"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
+                  <svg class="action-icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path
-                      d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                    />
+                      d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
                   </svg>
                   回复
                 </span>
@@ -296,21 +191,11 @@
     </div>
 
     <!-- 分享弹窗 -->
-    <van-popup
-      v-model:show="showSharePopup"
-      position="bottom"
-      round
-      class="share-popup"
-    >
+    <van-popup v-model:show="showSharePopup" position="bottom" round class="share-popup">
       <div class="share-sheet">
         <h4 class="share-title">分享到</h4>
         <div class="share-options">
-          <div
-            class="share-option"
-            v-for="option in shareOptions"
-            :key="option.name"
-            @click="handleShare(option)"
-          >
+          <div class="share-option" v-for="option in shareOptions" :key="option.name" @click="handleShare(option)">
             <div class="share-icon-bg" :style="{ background: option.color }">
               <span class="share-icon-text">{{ option.icon }}</span>
             </div>
@@ -347,7 +232,7 @@ const detail = ref({
   isLiked: false,
   isCollected: false,
   publishTime: "",
-  cover:"",
+  cover: "",
 });
 
 onMounted(() => {
@@ -370,28 +255,28 @@ const fetchNewsDetail = async (id) => {
 // 图片处理
 const imageList = computed(() => {
   if (!detail.value?.cover) return [];
-  
+
   // 处理逗号分隔的字符串
   let urls = [];
-  
+
   if (Array.isArray(detail.value.cover)) {
     urls = detail.value.cover;
   } else if (typeof detail.value.cover === 'string') {
     urls = detail.value.cover.split(',').map(url => url.trim()).filter(Boolean);
   }
-  
+
   // 转换为完整URL
   return urls.map(url => {
     // 已经是完整URL
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    
+
     // 拼接基础URL
     const baseUrl = IMAGE_BASE_URL.replace(/\/$/, '');
     const path = url.startsWith('/') ? url : `/${url}`;
-    console.log(baseUrl,path);
-    
+    console.log(baseUrl, path);
+
     return `${baseUrl}${path}`;
   });
 });
@@ -455,7 +340,7 @@ const handleAvatarError = (e) => {
 // 切换关注状态
 const toggleFollow = async () => {
   const userId = detail.value.userId || detail.value.authorId;
-  
+
   if (!userId) {
     showToast("无法获取用户信息");
     return;
@@ -524,46 +409,70 @@ const hasCollected = ref(false);
 const likeAnimating = ref(false);
 const collectAnimating = ref(false);
 const isFollowing = ref(false);
+const collectCount = ref(0);
 
+// ==================== 同步详情数据 ====================
 watch(
   () => detail.value,
   (newDetail) => {
     if (!newDetail) return;
 
+    // 点赞
     hasLiked.value = newDetail.isLiked || false;
     likeCount.value = parseFloat(newDetail.likes) || 0;
-    hasCollected.value = newDetail.isCollected || false; // ← 同步收藏状态
+
+    // 收藏
+    hasCollected.value = newDetail.isCollected || false;
+    collectCount.value = parseFloat(newDetail.collectCount) || 0;
   },
   { immediate: true, deep: true }
 );
 
+// ==================== 点赞 ====================
 const toggleLike = async () => {
   likeAnimating.value = true;
   setTimeout(() => (likeAnimating.value = false), 300);
 
-  const likedStatus = await likeNews(detail.value.id);
-  console.log(likedStatus);
+  try {
+    await likeNews(detail.value.id);
 
-  if (hasLiked.value) {
-    likeCount.value--;
-    hasLiked.value = false;
-  } else {
-    likeCount.value++;
-    hasLiked.value = true;
-    showToast("点赞成功");
+    if (hasLiked.value) {
+      likeCount.value--;
+      hasLiked.value = false;
+    } else {
+      likeCount.value++;
+      hasLiked.value = true;
+      showToast("点赞成功");
+    }
+  } catch (e) {
+    console.error("点赞失败", e);
+    showToast("操作失败");
   }
 };
 
+// ==================== 收藏 ====================
 const toggleCollect = async () => {
   collectAnimating.value = true;
   setTimeout(() => (collectAnimating.value = false), 300);
 
-  const collectStatus = await collectNews(detail.value.id);
-  console.log(collectStatus);
+  try {
+    await collectNews(detail.value.id);
 
-  hasCollected.value = !hasCollected.value;
-  showToast(hasCollected.value ? "收藏成功" : "已取消收藏");
+    if (hasCollected.value) {
+      collectCount.value--;
+      hasCollected.value = false;
+      showToast("已取消收藏");
+    } else {
+      collectCount.value++;
+      hasCollected.value = true;
+      showToast("收藏成功");
+    }
+  } catch (e) {
+    console.error("收藏失败", e);
+    showToast("操作失败");
+  }
 };
+
 
 // 分享功能
 const showSharePopup = ref(false);
@@ -1146,9 +1055,11 @@ onUnmounted(() => {
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.2);
   }
+
   100% {
     transform: scale(1);
   }
@@ -1448,6 +1359,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
